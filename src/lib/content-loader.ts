@@ -1,6 +1,7 @@
 import type { PapyrusConfig, Article } from "./types.js";
 import { parseSource } from "./config.js";
 import { listMarkdownFiles, fetchFileContent, fetchLastCommitDate } from "./github.js";
+import { processImages } from "./images.js";
 
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/;
 
@@ -30,6 +31,8 @@ export async function loadAllArticles(config: PapyrusConfig): Promise<Article[]>
         fetchLastCommitDate({ owner, repo: name, path: file }),
       ]);
       const { meta, body } = parseFrontmatter(raw);
+      const rawBaseUrl = `https://raw.githubusercontent.com/${owner}/${name}/${repo.branch}/${file.replace(/[^/]+$/, "")}`;
+      const bodyWithImages = await processImages(body, repo.slug, rawBaseUrl);
       const segs = pathToSegments(file);
       const title = meta.title ?? segs[segs.length - 1];
       const date = meta.date ? new Date(meta.date).toISOString() : commitDate;
@@ -38,7 +41,7 @@ export async function loadAllArticles(config: PapyrusConfig): Promise<Article[]>
         path: segs,
         title,
         date,
-        rawMarkdown: body,
+        rawMarkdown: bodyWithImages,
         icon: meta.icon,
       });
     }
