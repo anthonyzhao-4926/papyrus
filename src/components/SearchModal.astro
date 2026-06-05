@@ -52,6 +52,13 @@
   function escapeHtml(s: string): string {
     return s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
   }
+  // Pagefind excerpt 中保留 <mark>...</mark> 高亮，其它字符全部转义。
+  function escapeExcerpt(s: string): string {
+    return escapeHtml(s).replace(/&lt;(\/?)mark&gt;/g, "<$1mark>");
+  }
+  function safeUrl(u: string): string | null {
+    return typeof u === "string" && u.startsWith("/") ? u : null;
+  }
 
   let last = 0;
   input.addEventListener("input", async () => {
@@ -69,12 +76,14 @@
     if (tick !== last) return;
     const items = await Promise.all(search.results.slice(0, 8).map((r: any) => r.data()));
     results.innerHTML = items.map(d => {
+      const url = safeUrl(d.url);
+      if (!url) return "";
       const title = escapeHtml(d.meta?.title ?? d.url);
-      const url = escapeHtml(d.url);
+      const excerpt = escapeExcerpt(d.excerpt ?? "");
       return `
-      <a href="${url}" class="block px-3 py-2 rounded hover:bg-bg-elev">
+      <a href="${escapeHtml(url)}" class="block px-3 py-2 rounded hover:bg-bg-elev">
         <div class="text-sm font-medium text-text">${title}</div>
-        <div class="text-xs text-text-mute mt-1">${d.excerpt}</div>
+        <div class="text-xs text-text-mute mt-1">${excerpt}</div>
       </a>
     `;
     }).join("");
