@@ -24,6 +24,21 @@ describe("renderMarkdown", () => {
     expect(html).toMatch(/<a[^>]+href="#二级标题"/);
   });
 
+  it("h2/h3 自动添加层级编号 span，且 id 不受影响", async () => {
+    const md = "## 章节 A\n\n### 子节 1\n\n### 子节 2\n\n## 章节 B\n\n### 子节 1";
+    const { html, toc } = await renderMarkdown(md);
+    expect(html).toContain('<span class="heading-no">1. </span>');
+    expect(html).toContain('<span class="heading-no">1.1 </span>');
+    expect(html).toContain('<span class="heading-no">1.2 </span>');
+    expect(html).toContain('<span class="heading-no">2. </span>');
+    expect(html).toContain('<span class="heading-no">2.1 </span>');
+    // id 仍基于原始文本（rehype-slug 先于编号执行）
+    expect(html).toMatch(/<h2[^>]*id="章节-a"/);
+    // TOC 文案带编号
+    expect(toc.find(t => t.depth === 2 && t.id === "章节-a")?.text).toBe("1. 章节 A");
+    expect(toc.find(t => t.depth === 3 && t.id === "子节-2")?.text).toBe("1.2 子节 2");
+  });
+
   it("数学公式被 KaTeX 渲染", async () => {
     const { html } = await renderMarkdown(fixture);
     expect(html).toContain('class="katex');
@@ -32,7 +47,7 @@ describe("renderMarkdown", () => {
   it("toc 包含 h2", async () => {
     const { toc } = await renderMarkdown(fixture);
     const h2 = toc.find(t => t.depth === 2);
-    expect(h2?.text).toBe("二级标题");
+    expect(h2?.text).toBe("1. 二级标题");
     expect(h2?.id).toBe("二级标题");
   });
 

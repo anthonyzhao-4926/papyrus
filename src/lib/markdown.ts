@@ -17,6 +17,36 @@ function collectText(node: any): string {
   return "";
 }
 
+// 自动为 h2/h3 生成层级编号（1. / 1.1）。在 rehype-slug 之后、extractToc
+// 之前执行：id 基于原始文本生成（稳定），而 TOC 与可见标题都包含编号。
+function numberHeadings() {
+  return (tree: any) => {
+    let h2 = 0;
+    let h3 = 0;
+    visit(tree, "element", (node: any) => {
+      let prefix: string | null = null;
+      if (node.tagName === "h2") {
+        h2 += 1;
+        h3 = 0;
+        prefix = `${h2}. `;
+      } else if (node.tagName === "h3") {
+        h3 += 1;
+        prefix = `${h2}.${h3} `;
+      }
+      if (prefix === null) return;
+      node.children = [
+        {
+          type: "element",
+          tagName: "span",
+          properties: { className: ["heading-no"] },
+          children: [{ type: "text", value: prefix }],
+        },
+        ...(node.children ?? []),
+      ];
+    });
+  };
+}
+
 function extractToc() {
   return (tree: any, file: any) => {
     const toc: TocItem[] = [];
@@ -76,6 +106,7 @@ export async function renderMarkdown(
     .use(remarkMath)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeSlug)
+    .use(numberHeadings)
     .use(extractToc);
   if (opts) pipeline = pipeline.use(rewriteMdLinks, opts);
   const file = await pipeline
