@@ -9,16 +9,24 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeShiki from "@shikijs/rehype";
 import rehypeStringify from "rehype-stringify";
 import { visit } from "unist-util-visit";
-import { toString } from "mdast-util-to-string";
 import type { TocItem } from "./types.js";
+
+function collectText(node: any): string {
+  if (node.type === "text") return node.value ?? "";
+  if (Array.isArray(node.children)) return node.children.map(collectText).join("");
+  return "";
+}
 
 function extractToc() {
   return (tree: any, file: any) => {
     const toc: TocItem[] = [];
-    visit(tree, "heading", (node: any) => {
-      if (node.depth === 2 || node.depth === 3) {
-        const text = toString(node);
-        toc.push({ id: text, text, depth: node.depth });
+    visit(tree, "element", (node: any) => {
+      if (node.tagName === "h2" || node.tagName === "h3") {
+        const depth = node.tagName === "h2" ? 2 : 3;
+        const id = node.properties?.id;
+        if (typeof id !== "string") return;
+        const text = collectText(node);
+        toc.push({ id, text, depth });
       }
     });
     file.data.toc = toc;
@@ -30,9 +38,9 @@ export async function renderMarkdown(md: string): Promise<{ html: string; toc: T
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkMath)
-    .use(extractToc)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeSlug)
+    .use(extractToc)
     .use(rehypeAutolinkHeadings, { behavior: "wrap" })
     .use(rehypeKatex)
     .use(rehypeShiki, {
