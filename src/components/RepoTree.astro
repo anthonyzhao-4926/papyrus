@@ -1,29 +1,75 @@
 ---
 import type { TreeNode } from "~/lib/types";
-interface Props { nodes: TreeNode[]; repoSlug: string; currentPath?: string[]; }
-const { nodes, repoSlug, currentPath = [] } = Astro.props;
+interface Props {
+  nodes: TreeNode[];
+  repoSlug: string;
+  currentPath?: string[];
+  depth?: number;
+}
+const { nodes, repoSlug, currentPath = [], depth = 0 } = Astro.props;
 const currentJoined = currentPath.join("/");
+
+function isAncestor(nodePath: string[]): boolean {
+  if (nodePath.length >= currentPath.length) return false;
+  return nodePath.every((p, i) => p === currentPath[i]);
+}
 ---
-<ul class="text-sm">
+<ul class={depth === 0 ? "space-y-0.5" : "space-y-px"}>
   {nodes.map(node => {
-    const href = `/${repoSlug}/${node.path.join("/")}`;
-    const isActive = node.type === "file" && node.path.join("/") === currentJoined;
     if (node.type === "dir") {
+      const ancestor = isAncestor(node.path);
+      const dirKey = node.path.join("/");
+      const isTop = depth === 0;
+      const summaryClass = [
+        "tree-summary flex items-center gap-1.5 px-1.5 py-1 rounded cursor-pointer select-none hover:bg-bg-elev transition-colors",
+        isTop ? "text-[13px] font-bold" : "text-[12.5px] font-semibold",
+        ancestor ? "text-accent" : (isTop ? "text-text" : "text-text-mute"),
+      ].join(" ");
       return (
-        <li class="my-1">
-          <div class="text-text-faint text-[11px] uppercase tracking-wider px-2 py-1">{node.name}</div>
-          <div class="pl-3">
-            <Astro.self nodes={node.children!} repoSlug={repoSlug} currentPath={currentPath} />
-          </div>
+        <li>
+          <details open={ancestor} data-dir-key={dirKey} class={isTop && depth === 0 ? "tree-section" : ""}>
+            <summary class={summaryClass}>
+              <span class="caret text-[9px] text-text-faint">▶</span>
+              <span class="truncate">{node.name}</span>
+            </summary>
+            <div class={`pl-2 ml-[7px] border-l ${ancestor ? "border-accent/30" : "border-border"} mt-0.5`}>
+              <Astro.self nodes={node.children!} repoSlug={repoSlug} currentPath={currentPath} depth={depth + 1} />
+            </div>
+          </details>
         </li>
       );
     }
+    const href = `/${repoSlug}/${node.path.join("/")}`;
+    const isActive = node.path.join("/") === currentJoined;
+    const linkClass = [
+      "tree-file relative block py-1 pl-2 pr-1.5 rounded text-[13px] truncate transition-colors",
+      isActive
+        ? "bg-accent/10 text-accent font-semibold"
+        : "text-text-mute hover:bg-bg-elev hover:text-text",
+    ].join(" ");
     return (
       <li>
-        <a href={href} class={`block py-1 px-2 rounded ${isActive ? 'bg-accent/10 text-accent font-medium' : 'text-text-mute hover:bg-bg-elev'}`}>
+        <a
+          href={href}
+          data-current={isActive ? "true" : null}
+          class={linkClass}
+        >
+          {isActive && <span class="absolute left-0 top-1.5 bottom-1.5 w-[2px] rounded bg-accent" />}
           {node.name}
         </a>
       </li>
     );
   })}
 </ul>
+
+{depth === 0 && (
+  <style is:global>
+    .tree-summary { list-style: none; }
+    .tree-summary::-webkit-details-marker { display: none; }
+    .tree-summary::marker { content: ""; }
+    .tree-summary .caret { display: inline-block; transition: transform 120ms ease; }
+    details[open] > .tree-summary .caret { transform: rotate(90deg); }
+    /* 顶层分组之间留点空气 */
+    .tree-section { margin-bottom: 8px; }
+  </style>
+)}
