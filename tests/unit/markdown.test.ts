@@ -44,11 +44,23 @@ describe("renderMarkdown", () => {
     expect(html).toContain('class="katex');
   });
 
-  it("toc 包含 h2", async () => {
+  it("toc 包含 h1 和 h2", async () => {
     const { toc } = await renderMarkdown(fixture);
+    const h1 = toc.find(t => t.depth === 1);
     const h2 = toc.find(t => t.depth === 2);
-    expect(h2?.text).toBe("1. 二级标题");
+    expect(h1?.text).toBe("1. Sample Title");
+    expect(h2?.text).toBe("1.1 二级标题");
     expect(h2?.id).toBe("二级标题");
+  });
+
+  it("h1 起点时编号为 1. / 1.1 / 1.1.1", async () => {
+    const md = "# 大章\n\n## 节 A\n\n### 小节 1\n\n## 节 B\n\n# 第二章";
+    const { toc } = await renderMarkdown(md);
+    expect(toc.find(t => t.depth === 1 && t.id === "大章")?.text).toBe("1. 大章");
+    expect(toc.find(t => t.depth === 2 && t.id === "节-a")?.text).toBe("1.1 节 A");
+    expect(toc.find(t => t.depth === 3)?.text).toBe("1.1.1 小节 1");
+    expect(toc.find(t => t.depth === 2 && t.id === "节-b")?.text).toBe("1.2 节 B");
+    expect(toc.find(t => t.depth === 1 && t.id === "第二章")?.text).toBe("2. 第二章");
   });
 
   it("内部 .md 链接被重写为绝对路由", async () => {

@@ -6,7 +6,7 @@
 .prose h1 { font-size: 30px; line-height: 1.25; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.01em; }
 .prose h2 { font-size: 22px; line-height: 1.4; font-weight: 700; margin: 32px 0 8px; }
 .prose h3 { font-size: 17px; line-height: 1.4; font-weight: 600; margin: 22px 0 6px; }
-.prose :is(h2, h3) .heading-no {
+.prose :is(h1, h2, h3) .heading-no {
   display: inline-block;
   margin-right: 0.5em;
   color: var(--c-text-faint);

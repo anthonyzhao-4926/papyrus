@@ -17,21 +17,31 @@ function collectText(node: any): string {
   return "";
 }
 
-// 自动为 h2/h3 生成层级编号（1. / 1.1）。在 rehype-slug 之后、extractToc
-// 之前执行：id 基于原始文本生成（稳定），而 TOC 与可见标题都包含编号。
+// 自动为 h1/h2/h3 生成层级编号（1. / 1.1 / 1.1.1）。在 rehype-slug 之后、
+// extractToc 之前执行：id 基于原始文本生成（稳定），而 TOC 与可见标题都包
+// 含编号。若某层级缺失（如没写 h1，直接从 h2 开始），降级展示。
 function numberHeadings() {
   return (tree: any) => {
+    let h1 = 0;
     let h2 = 0;
     let h3 = 0;
     visit(tree, "element", (node: any) => {
       let prefix: string | null = null;
-      if (node.tagName === "h2") {
+      if (node.tagName === "h1") {
+        h1 += 1;
+        h2 = 0;
+        h3 = 0;
+        prefix = `${h1}. `;
+      } else if (node.tagName === "h2") {
         h2 += 1;
         h3 = 0;
-        prefix = `${h2}. `;
+        prefix = h1 > 0 ? `${h1}.${h2} ` : `${h2}. `;
       } else if (node.tagName === "h3") {
         h3 += 1;
-        prefix = `${h2}.${h3} `;
+        prefix =
+          h1 > 0 && h2 > 0 ? `${h1}.${h2}.${h3} `
+          : h2 > 0 ? `${h2}.${h3} `
+          : `${h3}. `;
       }
       if (prefix === null) return;
       node.children = [
@@ -48,16 +58,16 @@ function numberHeadings() {
 }
 
 function extractToc() {
+  const depthOf: Record<string, number> = { h1: 1, h2: 2, h3: 3 };
   return (tree: any, file: any) => {
     const toc: TocItem[] = [];
     visit(tree, "element", (node: any) => {
-      if (node.tagName === "h2" || node.tagName === "h3") {
-        const depth = node.tagName === "h2" ? 2 : 3;
-        const id = node.properties?.id;
-        if (typeof id !== "string") return;
-        const text = collectText(node);
-        toc.push({ id, text, depth });
-      }
+      const depth = depthOf[node.tagName];
+      if (!depth) return;
+      const id = node.properties?.id;
+      if (typeof id !== "string") return;
+      const text = collectText(node);
+      toc.push({ id, text, depth });
     });
     file.data.toc = toc;
   };
