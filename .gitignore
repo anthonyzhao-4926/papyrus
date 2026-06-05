@@ -6,3 +6,6 @@ dist/
 .DS_Store
 public/images/
 .superpowers/
+.cache/
+playwright-report/
+test-results/
