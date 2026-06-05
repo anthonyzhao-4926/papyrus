@@ -1,0 +1,32 @@
+---
+import "~/styles/global.css";
+import "~/styles/prose.css";
+import SiteHeader from "~/components/SiteHeader.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description = "" } = Astro.props;
+---
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1280" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <script is:inline>
+      (() => {
+        const saved = localStorage.getItem("theme");
+        const sys = matchMedia("(prefers-color-scheme: dark)").matches;
+        const dark = saved === "dark" || (!saved && sys);
+        if (dark) document.documentElement.classList.add("dark");
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen bg-bg text-text">
+    <SiteHeader />
+    <slot />
+  </body>
+</html>
