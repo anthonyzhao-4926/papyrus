@@ -1,0 +1,29 @@
+---
+import type { TreeNode } from "~/lib/types";
+interface Props { nodes: TreeNode[]; repoSlug: string; currentPath?: string[]; }
+const { nodes, repoSlug, currentPath = [] } = Astro.props;
+const currentJoined = currentPath.join("/");
+---
+<ul class="text-sm">
+  {nodes.map(node => {
+    const href = `/${repoSlug}/${node.path.join("/")}`;
+    const isActive = node.type === "file" && node.path.join("/") === currentJoined;
+    if (node.type === "dir") {
+      return (
+        <li class="my-1">
+          <div class="text-text-faint text-[11px] uppercase tracking-wider px-2 py-1">{node.name}</div>
+          <div class="pl-3">
+            <Astro.self nodes={node.children!} repoSlug={repoSlug} currentPath={currentPath} />
+          </div>
+        </li>
+      );
+    }
+    return (
+      <li>
+        <a href={href} class={`block py-1 px-2 rounded ${isActive ? 'bg-accent/10 text-accent font-medium' : 'text-text-mute hover:bg-bg-elev'}`}>
+          {node.name}
+        </a>
+      </li>
+    );
+  })}
+</ul>

@@ -1,0 +1,15 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import type { TreeNode } from "~/lib/types";
+import RepoTree from "~/components/RepoTree.astro";
+interface Props { title: string; tree: TreeNode[]; repoSlug: string; }
+const { title, tree, repoSlug } = Astro.props;
+---
+<BaseLayout title={title}>
+  <div class="max-w-page mx-auto grid grid-cols-[240px_1fr] gap-9 px-14 py-10">
+    <aside class="border-r border-border pr-4">
+      <RepoTree nodes={tree} repoSlug={repoSlug} />
+    </aside>
+    <main><slot /></main>
+  </div>
+</BaseLayout>

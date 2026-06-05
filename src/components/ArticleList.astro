@@ -1,0 +1,17 @@
+---
+import type { Article } from "~/lib/types";
+interface Props { articles: Article[]; }
+const { articles } = Astro.props;
+---
+<ul>
+  {articles.map(a => (
+    <li class="py-4 border-b border-border last:border-0">
+      <div class="text-xs text-text-faint mb-1">
+        {a.path.slice(0, -1).join(" / ")} · {a.date.slice(0, 10)}
+      </div>
+      <a href={`/${a.repo}/${a.path.join("/")}`} class="text-base font-semibold hover:text-accent">
+        {a.title}
+      </a>
+    </li>
+  ))}
+</ul>

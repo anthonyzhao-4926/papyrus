@@ -1,0 +1,30 @@
+---
+import RepoLayout from "~/layouts/RepoLayout.astro";
+import ArticleList from "~/components/ArticleList.astro";
+import { readFile } from "node:fs/promises";
+import { buildTree } from "~/lib/tree";
+import type { PapyrusConfig, Article } from "~/lib/types";
+
+export async function getStaticPaths() {
+  const cache = JSON.parse(await readFile(".cache/articles.json", "utf-8")) as {
+    config: PapyrusConfig; articles: Article[];
+  };
+  return cache.config.repos.map(r => ({
+    params: { repo: r.slug },
+    props: {
+      repo: r,
+      articles: cache.articles.filter(a => a.repo === r.slug),
+    },
+  }));
+}
+
+const { repo, articles } = Astro.props;
+const sorted = [...articles].sort((a, b) => b.date.localeCompare(a.date));
+const tree = buildTree(articles);
+---
+<RepoLayout title={repo.title} tree={tree} repoSlug={repo.slug}>
+  <h1 class="text-2xl font-bold mb-1">{repo.title}</h1>
+  <p class="text-text-mute mb-6">{repo.description}</p>
+  <div class="text-xs text-text-faint mb-2">{articles.length} 篇 · 按时间倒序</div>
+  <ArticleList articles={sorted} />
+</RepoLayout>
