@@ -1,6 +1,6 @@
 ---
 ---
-<div id="search-modal" class="fixed inset-0 z-50 hidden">
+<div id="search-modal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-label="搜索">
   <div class="absolute inset-0 bg-black/60" id="search-backdrop"></div>
   <div class="relative max-w-xl mx-auto mt-24 bg-bg border border-border rounded-xl shadow-2xl overflow-hidden">
     <input
@@ -49,20 +49,34 @@
     if (e.key === "Escape" && !modal.classList.contains("hidden")) close();
   });
 
+  function escapeHtml(s: string): string {
+    return s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+  }
+
   let last = 0;
   input.addEventListener("input", async () => {
     const q = input.value.trim();
     const tick = ++last;
     if (!q) { results.innerHTML = ""; return; }
-    const pf = await ensurePagefind();
+    let pf;
+    try {
+      pf = await ensurePagefind();
+    } catch {
+      results.innerHTML = `<div class="px-3 py-2 text-xs text-text-faint">搜索索引不可用（请先 pnpm build）</div>`;
+      return;
+    }
     const search = await pf.search(q);
     if (tick !== last) return;
     const items = await Promise.all(search.results.slice(0, 8).map((r: any) => r.data()));
-    results.innerHTML = items.map(d => `
-      <a href="${d.url}" class="block px-3 py-2 rounded hover:bg-bg-elev">
-        <div class="text-sm font-medium text-text">${d.meta?.title ?? d.url}</div>
+    results.innerHTML = items.map(d => {
+      const title = escapeHtml(d.meta?.title ?? d.url);
+      const url = escapeHtml(d.url);
+      return `
+      <a href="${url}" class="block px-3 py-2 rounded hover:bg-bg-elev">
+        <div class="text-sm font-medium text-text">${title}</div>
         <div class="text-xs text-text-mute mt-1">${d.excerpt}</div>
       </a>
-    `).join("");
+    `;
+    }).join("");
   });
 </script>
