@@ -24,19 +24,18 @@ describe("renderMarkdown", () => {
     expect(html).toMatch(/<a[^>]+href="#二级标题"/);
   });
 
-  it("h2/h3 自动添加层级编号 span，且 id 不受影响", async () => {
+  it("缺失 h1 时 h2/h3 退化为 1./1.1，且正文不注入编号", async () => {
     const md = "## 章节 A\n\n### 子节 1\n\n### 子节 2\n\n## 章节 B\n\n### 子节 1";
     const { html, toc } = await renderMarkdown(md);
-    expect(html).toContain('<span class="heading-no">1. </span>');
-    expect(html).toContain('<span class="heading-no">1.1 </span>');
-    expect(html).toContain('<span class="heading-no">1.2 </span>');
-    expect(html).toContain('<span class="heading-no">2. </span>');
-    expect(html).toContain('<span class="heading-no">2.1 </span>');
-    // id 仍基于原始文本（rehype-slug 先于编号执行）
+    // 正文标题不再带编号 span
+    expect(html).not.toContain("heading-no");
+    expect(html).not.toMatch(/<h2[^>]*>1\.\s*章节/);
+    // id 基于原文本
     expect(html).toMatch(/<h2[^>]*id="章节-a"/);
     // TOC 文案带编号
     expect(toc.find(t => t.depth === 2 && t.id === "章节-a")?.text).toBe("1. 章节 A");
     expect(toc.find(t => t.depth === 3 && t.id === "子节-2")?.text).toBe("1.2 子节 2");
+    expect(toc.find(t => t.depth === 2 && t.id === "章节-b")?.text).toBe("2. 章节 B");
   });
 
   it("数学公式被 KaTeX 渲染", async () => {

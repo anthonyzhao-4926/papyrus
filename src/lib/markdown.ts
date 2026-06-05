@@ -17,57 +17,37 @@ function collectText(node: any): string {
   return "";
 }
 
-// 自动为 h1/h2/h3 生成层级编号（1. / 1.1 / 1.1.1）。在 rehype-slug 之后、
-// extractToc 之前执行：id 基于原始文本生成（稳定），而 TOC 与可见标题都包
-// 含编号。若某层级缺失（如没写 h1，直接从 h2 开始），降级展示。
-function numberHeadings() {
-  return (tree: any) => {
-    let h1 = 0;
-    let h2 = 0;
-    let h3 = 0;
-    visit(tree, "element", (node: any) => {
-      let prefix: string | null = null;
-      if (node.tagName === "h1") {
-        h1 += 1;
-        h2 = 0;
-        h3 = 0;
-        prefix = `${h1}. `;
-      } else if (node.tagName === "h2") {
-        h2 += 1;
-        h3 = 0;
-        prefix = h1 > 0 ? `${h1}.${h2} ` : `${h2}. `;
-      } else if (node.tagName === "h3") {
-        h3 += 1;
-        prefix =
-          h1 > 0 && h2 > 0 ? `${h1}.${h2}.${h3} `
-          : h2 > 0 ? `${h2}.${h3} `
-          : `${h3}. `;
-      }
-      if (prefix === null) return;
-      node.children = [
-        {
-          type: "element",
-          tagName: "span",
-          properties: { className: ["heading-no"] },
-          children: [{ type: "text", value: prefix }],
-        },
-        ...(node.children ?? []),
-      ];
-    });
-  };
-}
-
+// 提取 h1/h2/h3 形成 TOC，并按 1./1.1/1.1.1 风格自动编号写入 toc.text。
+// 编号仅出现在 TOC，正文 hast 节点不被修改。若缺失某层级（如未写 h1），
+// 降级展示：h2 直接 1./2.，h3 直接 1.1/1.2。
 function extractToc() {
   const depthOf: Record<string, number> = { h1: 1, h2: 2, h3: 3 };
   return (tree: any, file: any) => {
     const toc: TocItem[] = [];
+    let h1 = 0;
+    let h2 = 0;
+    let h3 = 0;
     visit(tree, "element", (node: any) => {
       const depth = depthOf[node.tagName];
       if (!depth) return;
       const id = node.properties?.id;
       if (typeof id !== "string") return;
       const text = collectText(node);
-      toc.push({ id, text, depth });
+      let prefix = "";
+      if (depth === 1) {
+        h1 += 1; h2 = 0; h3 = 0;
+        prefix = `${h1}. `;
+      } else if (depth === 2) {
+        h2 += 1; h3 = 0;
+        prefix = h1 > 0 ? `${h1}.${h2} ` : `${h2}. `;
+      } else {
+        h3 += 1;
+        prefix =
+          h1 > 0 && h2 > 0 ? `${h1}.${h2}.${h3} `
+          : h2 > 0 ? `${h2}.${h3} `
+          : `${h3}. `;
+      }
+      toc.push({ id, text: prefix + text, depth });
     });
     file.data.toc = toc;
   };
@@ -116,7 +96,6 @@ export async function renderMarkdown(
     .use(remarkMath)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeSlug)
-    .use(numberHeadings)
     .use(extractToc);
   if (opts) pipeline = pipeline.use(rewriteMdLinks, opts);
   const file = await pipeline

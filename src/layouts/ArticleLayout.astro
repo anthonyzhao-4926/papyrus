@@ -14,7 +14,7 @@ interface Props {
 const { title, tree, repoSlug, currentPath, toc } = Astro.props;
 ---
 <BaseLayout title={title}>
-  <div class="max-w-page mx-auto grid grid-cols-[240px_1fr_220px] gap-9 px-14 py-10">
+  <div class="max-w-page mx-auto grid grid-cols-[240px_1fr_220px] gap-9 px-6 py-10">
     <aside class="border-r border-border pr-4 self-start sticky top-16 max-h-[calc(100vh-5rem)] overflow-y-auto" data-repo-tree>
       <RepoTree nodes={tree} repoSlug={repoSlug} currentPath={currentPath} />
     </aside>
