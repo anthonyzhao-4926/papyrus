@@ -20,7 +20,10 @@ export async function getStaticPaths() {
 }
 
 const { article, repoArticles } = Astro.props;
-const { html, toc } = await renderMarkdown(article.rawMarkdown);
+const { html, toc } = await renderMarkdown(article.rawMarkdown, {
+  repoSlug: article.repo,
+  currentPath: article.path,
+});
 const tree = buildTree(repoArticles);
 ---
 <ArticleLayout

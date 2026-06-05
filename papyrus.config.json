@@ -6,11 +6,11 @@
   },
   "repos": [
     {
-      "slug": "tech-notes",
-      "title": "技术笔记",
-      "description": "前端、后端、基础设施的实战记录",
+      "slug": "xin-skills",
+      "title": "个人AI Skills",
+      "description": "这里存放了我的个人skill",
       "icon": "📘",
-      "source": "github.com/withastro/docs",
+      "source": "github.com/anthonyzhao-4926/xin-skills",
       "branch": "main"
     }
   ]
