@@ -16,17 +16,6 @@ const { title, tree, repoSlug, currentPath, toc } = Astro.props;
 <BaseLayout title={title}>
   <div class="max-w-page mx-auto grid grid-cols-[240px_1fr_220px] gap-9 px-14 py-10">
     <aside class="border-r border-border pr-4 self-start sticky top-16 max-h-[calc(100vh-5rem)] overflow-y-auto" data-repo-tree>
-      <div class="flex items-center justify-between px-1.5 mb-2">
-        <span class="text-[11px] uppercase tracking-wider text-text-faint">目录</span>
-        <button
-          id="locate-current-btn"
-          type="button"
-          class="text-[11px] text-text-mute hover:text-accent flex items-center gap-1"
-          title="展开并滚动到当前文章"
-        >
-          <span>⌖</span><span>定位</span>
-        </button>
-      </div>
       <RepoTree nodes={tree} repoSlug={repoSlug} currentPath={currentPath} />
     </aside>
     <main class="max-w-prose">
@@ -37,19 +26,7 @@ const { title, tree, repoSlug, currentPath, toc } = Astro.props;
     </aside>
   </div>
   <script>
-    function locateCurrent() {
-      const aside = document.querySelector("[data-repo-tree]");
-      const cur = aside?.querySelector<HTMLAnchorElement>('a[data-current="true"]');
-      if (!cur) return;
-      let p: HTMLElement | null = cur.parentElement;
-      while (p && p !== aside) {
-        if (p.tagName === "DETAILS") (p as HTMLDetailsElement).open = true;
-        p = p.parentElement;
-      }
-      cur.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-    document.getElementById("locate-current-btn")?.addEventListener("click", locateCurrent);
-    // 进入页面时自动定位一次（避免长目录里手动找）
+    // 长目录时把当前文章自动滚到侧栏视口中央
     requestAnimationFrame(() => {
       const aside = document.querySelector("[data-repo-tree]");
       const cur = aside?.querySelector<HTMLAnchorElement>('a[data-current="true"]');
