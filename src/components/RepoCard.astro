@@ -1,0 +1,39 @@
+---
+interface Props {
+  slug: string;
+  title: string;
+  description: string;
+  icon: string;
+  articleCount: number;
+  latestDate: string;
+}
+const { slug, title, description, icon, articleCount, latestDate } = Astro.props;
+const palettes = [
+  "bg-blue-100 text-blue-600",
+  "bg-green-100 text-green-600",
+  "bg-amber-100 text-amber-600",
+  "bg-pink-100 text-pink-600",
+  "bg-violet-100 text-violet-600",
+  "bg-cyan-100 text-cyan-600",
+];
+const colorIdx = slug.split("").reduce((a, c) => a + c.charCodeAt(0), 0) % palettes.length;
+const ago = (() => {
+  const days = Math.floor((Date.now() - new Date(latestDate).getTime()) / 86400000);
+  if (days === 0) return "今天更新";
+  if (days < 7) return `${days} 天前更新`;
+  if (days < 30) return `${Math.floor(days / 7)} 周前更新`;
+  return `${Math.floor(days / 30)} 个月前更新`;
+})();
+---
+<a href={`/${slug}`} class="block p-6 border border-border rounded-xl bg-bg hover:-translate-y-0.5 hover:shadow-lg transition">
+  <div class={`w-9 h-9 rounded-lg flex items-center justify-center text-lg mb-3 ${palettes[colorIdx]}`}>
+    {icon}
+  </div>
+  <h3 class="font-semibold mb-1">{title}</h3>
+  <p class="text-sm text-text-mute leading-relaxed mb-3">{description}</p>
+  <div class="text-xs text-text-faint flex gap-3">
+    <span>{articleCount} 篇</span>
+    <span>·</span>
+    <span>{ago}</span>
+  </div>
+</a>
