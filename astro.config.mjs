@@ -12,5 +12,10 @@ export default defineConfig({
     resolve: {
       alias: { "~": new URL("./src", import.meta.url).pathname },
     },
+    build: {
+      rollupOptions: {
+        external: ["/pagefind/pagefind.js"],
+      },
+    },
   },
 });
