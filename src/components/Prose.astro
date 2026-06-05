@@ -2,7 +2,7 @@
 interface Props { html: string; }
 const { html } = Astro.props;
 ---
-<article class="prose" set:html={html} />
+<article class="prose" data-pagefind-body set:html={html} />
 <script>
   import mediumZoom from "medium-zoom";
   mediumZoom("article.prose img", { background: "rgba(0,0,0,0.85)", margin: 24 });

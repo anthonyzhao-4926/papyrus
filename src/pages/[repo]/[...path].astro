@@ -33,7 +33,7 @@ const tree = buildTree(repoArticles);
   <div class="text-xs text-text-faint mb-2">
     {article.repo} / {article.path.join("/")}.md
   </div>
-  <h1 class="text-3xl font-bold mb-1">{article.title}</h1>
+  <h1 class="text-3xl font-bold mb-1" data-pagefind-meta="title">{article.title}</h1>
   <div class="text-sm text-text-mute mb-6 pb-4 border-b border-border">
     最后更新 {article.date.slice(0, 10)}
   </div>

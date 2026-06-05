@@ -1,0 +1,68 @@
+---
+---
+<div id="search-modal" class="fixed inset-0 z-50 hidden">
+  <div class="absolute inset-0 bg-black/60" id="search-backdrop"></div>
+  <div class="relative max-w-xl mx-auto mt-24 bg-bg border border-border rounded-xl shadow-2xl overflow-hidden">
+    <input
+      id="search-input"
+      type="text"
+      placeholder="搜索文章..."
+      class="w-full px-5 py-4 bg-transparent text-text outline-none border-b border-border"
+      autocomplete="off"
+    />
+    <div id="search-results" class="max-h-[60vh] overflow-y-auto p-2"></div>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById("search-modal")!;
+  const input = document.getElementById("search-input") as HTMLInputElement;
+  const results = document.getElementById("search-results")!;
+  const backdrop = document.getElementById("search-backdrop")!;
+  const openBtn = document.getElementById("open-search");
+
+  let pagefind: any = null;
+  async function ensurePagefind() {
+    if (!pagefind) {
+      // @ts-ignore
+      pagefind = await import(/* @vite-ignore */ "/pagefind/pagefind.js");
+      pagefind.options({ excerptLength: 30 });
+      await pagefind.init();
+    }
+    return pagefind;
+  }
+
+  function open() {
+    modal.classList.remove("hidden");
+    input.value = "";
+    results.innerHTML = "";
+    setTimeout(() => input.focus(), 0);
+  }
+  function close() {
+    modal.classList.add("hidden");
+  }
+
+  openBtn?.addEventListener("click", open);
+  backdrop.addEventListener("click", close);
+  window.addEventListener("keydown", (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "k") { e.preventDefault(); open(); }
+    if (e.key === "Escape" && !modal.classList.contains("hidden")) close();
+  });
+
+  let last = 0;
+  input.addEventListener("input", async () => {
+    const q = input.value.trim();
+    const tick = ++last;
+    if (!q) { results.innerHTML = ""; return; }
+    const pf = await ensurePagefind();
+    const search = await pf.search(q);
+    if (tick !== last) return;
+    const items = await Promise.all(search.results.slice(0, 8).map((r: any) => r.data()));
+    results.innerHTML = items.map(d => `
+      <a href="${d.url}" class="block px-3 py-2 rounded hover:bg-bg-elev">
+        <div class="text-sm font-medium text-text">${d.meta?.title ?? d.url}</div>
+        <div class="text-xs text-text-mute mt-1">${d.excerpt}</div>
+      </a>
+    `).join("");
+  });
+</script>
