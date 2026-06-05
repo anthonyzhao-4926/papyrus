@@ -1,0 +1,9 @@
+{
+  "tree": [
+    { "path": "README.md", "type": "blob", "sha": "abc1" },
+    { "path": "docs", "type": "tree", "sha": "abc2" },
+    { "path": "docs/intro.md", "type": "blob", "sha": "abc3" },
+    { "path": "docs/setup.md", "type": "blob", "sha": "abc4" },
+    { "path": "docs/img.png", "type": "blob", "sha": "abc5" }
+  ]
+}
