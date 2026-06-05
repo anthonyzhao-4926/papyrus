@@ -1,0 +1,17 @@
+{
+  "site": {
+    "name": "Papyrus",
+    "description": "我把笔记都搬到这里了",
+    "url": "https://blog.example.com"
+  },
+  "repos": [
+    {
+      "slug": "tech-notes",
+      "title": "技术笔记",
+      "description": "前端、后端、基础设施的实战记录",
+      "icon": "📘",
+      "source": "github.com/withastro/docs",
+      "branch": "main"
+    }
+  ]
+}
