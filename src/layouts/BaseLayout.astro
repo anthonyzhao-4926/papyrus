@@ -16,6 +16,7 @@ const { title, description = "" } = Astro.props;
     <meta name="viewport" content="width=1280" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
     <script is:inline>
       (() => {
         const saved = localStorage.getItem("theme");

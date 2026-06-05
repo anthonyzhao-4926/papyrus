@@ -33,3 +33,9 @@ html {
 
 body { margin: 0; }
 a { color: inherit; text-decoration: none; }
+
+/* Shiki 双主题切换 */
+html:not(.dark) .shiki span { color: var(--shiki-light) !important; }
+html.dark .shiki span { color: var(--shiki-dark) !important; }
+html:not(.dark) .shiki { background-color: var(--shiki-light-bg, var(--c-code-bg)) !important; }
+html.dark .shiki { background-color: var(--shiki-dark-bg, var(--c-code-bg)) !important; }
