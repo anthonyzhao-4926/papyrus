@@ -1,0 +1,15 @@
+---
+import type { TocItem } from "~/lib/types";
+interface Props { items: TocItem[]; }
+const { items } = Astro.props;
+---
+<nav class="sticky top-6 text-xs">
+  <div class="text-text-faint uppercase tracking-wider text-[11px] mb-2">On this page</div>
+  <ul>
+    {items.map(t => (
+      <li class={`py-1 ${t.depth === 3 ? 'pl-4 text-[12px]' : ''} text-text-mute`}>
+        <a href={`#${t.id}`} class="hover:text-accent">{t.text}</a>
+      </li>
+    ))}
+  </ul>
+</nav>

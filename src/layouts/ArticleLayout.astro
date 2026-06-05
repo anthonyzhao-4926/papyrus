@@ -1,0 +1,28 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import RepoTree from "~/components/RepoTree.astro";
+import ArticleTOC from "~/components/ArticleTOC.astro";
+import type { TreeNode, TocItem } from "~/lib/types";
+
+interface Props {
+  title: string;
+  tree: TreeNode[];
+  repoSlug: string;
+  currentPath: string[];
+  toc: TocItem[];
+}
+const { title, tree, repoSlug, currentPath, toc } = Astro.props;
+---
+<BaseLayout title={title}>
+  <div class="max-w-page mx-auto grid grid-cols-[240px_1fr_220px] gap-9 px-14 py-10">
+    <aside class="border-r border-border pr-4">
+      <RepoTree nodes={tree} repoSlug={repoSlug} currentPath={currentPath} />
+    </aside>
+    <main class="max-w-prose">
+      <slot />
+    </main>
+    <aside class="border-l border-border pl-4">
+      <ArticleTOC items={toc} />
+    </aside>
+  </div>
+</BaseLayout>

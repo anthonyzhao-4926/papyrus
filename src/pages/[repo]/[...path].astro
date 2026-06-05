@@ -1,0 +1,41 @@
+---
+import ArticleLayout from "~/layouts/ArticleLayout.astro";
+import Prose from "~/components/Prose.astro";
+import { readFile } from "node:fs/promises";
+import { buildTree } from "~/lib/tree";
+import { renderMarkdown } from "~/lib/markdown";
+import type { PapyrusConfig, Article } from "~/lib/types";
+
+export async function getStaticPaths() {
+  const cache = JSON.parse(await readFile(".cache/articles.json", "utf-8")) as {
+    config: PapyrusConfig; articles: Article[];
+  };
+  return cache.articles.map(a => ({
+    params: { repo: a.repo, path: a.path.join("/") },
+    props: {
+      article: a,
+      repoArticles: cache.articles.filter(x => x.repo === a.repo),
+    },
+  }));
+}
+
+const { article, repoArticles } = Astro.props;
+const { html, toc } = await renderMarkdown(article.rawMarkdown);
+const tree = buildTree(repoArticles);
+---
+<ArticleLayout
+  title={article.title}
+  tree={tree}
+  repoSlug={article.repo}
+  currentPath={article.path}
+  toc={toc}
+>
+  <div class="text-xs text-text-faint mb-2">
+    {article.repo} / {article.path.join("/")}.md
+  </div>
+  <h1 class="text-3xl font-bold mb-1">{article.title}</h1>
+  <div class="text-sm text-text-mute mb-6 pb-4 border-b border-border">
+    最后更新 {article.date.slice(0, 10)}
+  </div>
+  <Prose html={html} />
+</ArticleLayout>
