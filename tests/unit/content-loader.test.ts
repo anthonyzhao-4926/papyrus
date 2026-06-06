@@ -9,6 +9,7 @@ vi.mock("~/lib/github", () => ({
 
 const cfg = {
   site: { name: "T", description: "d", url: "https://t" },
+  server: { port: 5233 },
   repos: [{
     slug: "tn", title: "TN", description: "d", icon: "📘",
     source: "github.com/me/tn", branch: "main",

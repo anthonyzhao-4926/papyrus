@@ -1,8 +1,10 @@
 ---
 import RepoLayout from "~/layouts/RepoLayout.astro";
 import BlankCanvas from "~/components/BlankCanvas.astro";
+import GithubLink from "~/components/GithubLink.astro";
 import { readFile } from "node:fs/promises";
 import { buildTree } from "~/lib/tree";
+import { repoUrl } from "~/lib/config";
 import type { PapyrusConfig, Article } from "~/lib/types";
 
 export async function getStaticPaths() {
@@ -25,6 +27,7 @@ const tree = buildTree(articles);
   <div class="flex items-center gap-2.5 mb-1">
     <span class="text-2xl leading-none">{repo.icon}</span>
     <h1 class="text-2xl font-bold">{repo.title}</h1>
+    <GithubLink href={repoUrl(repo.source)} size={20} class="ml-auto" label={`${repo.title} · GitHub 仓库`} />
   </div>
   <p class="text-text-mute mb-6">{repo.description}</p>
   <BlankCanvas />

@@ -22,8 +22,13 @@ export interface TagConfig {
   description?: string; // tag 页面顶部描述；支持 {count} 占位符代入笔记本数
 }
 
+export interface ServerConfig {
+  port: number;       // dev / preview 服务端口，默认 5233
+}
+
 export interface PapyrusConfig {
   site: SiteConfig;
+  server: ServerConfig;
   repos: RepoConfig[];
   tags?: Record<string, TagConfig>;  // tag slug → 显示信息
 }

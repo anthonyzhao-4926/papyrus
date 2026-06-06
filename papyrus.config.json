@@ -3,30 +3,33 @@
     "name": "Papyrus",
     "description": "你好，我叫赵鑫，很高兴认识你"
   },
+  "server": {
+    "port": 5233
+  },
   "tags": {
-    "study": {
-      "title": "学习",
-      "icon": "📘"
+    "tool": {
+      "title": "工具",
+      "icon": "🔧"
     },
-    "work": {
-      "title": "工作",
-      "icon": "💼"
+    "tutorial": {
+      "title": "教程",
+      "icon": "📚"
     },
-    "life": {
-      "title": "生活",
-      "icon": "🌱"
+    "note": {
+      "title": "笔记",
+      "icon": "📝"
     }
   },
   "repos": [
     {
       "slug": "xin-skills",
-      "title": "个人AI Skills",
-      "description": "这里存放了我的个人skill",
+      "title": "Agent Skills",
+      "description": "根据个人需求编写的Agent Skills",
       "icon": "📘",
       "source": "github.com/anthonyzhao-4926/xin-skills",
       "branch": "main",
       "tags": [
-        "study"
+        "tool"
       ]
     }
   ]

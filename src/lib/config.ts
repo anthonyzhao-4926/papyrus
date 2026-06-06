@@ -28,6 +28,9 @@ const ConfigSchema = z.object({
     heroHighlight: z.string().optional(),
     heroEyebrow: z.string().optional(),
   }),
+  server: z.object({
+    port: z.number().int().positive().default(5233),
+  }).default({ port: 5233 }),
   repos: z.array(RepoSchema).min(1, "至少需要 1 个 repo"),
   tags: z.record(TagSlug, TagSchema).optional(),
 }).refine(
@@ -54,4 +57,10 @@ export function parseSource(source: string): { owner: string; repo: string } {
   const m = source.match(/^github\.com\/([^/]+)\/([^/]+)$/);
   if (!m) throw new Error(`无效 source: ${source}`);
   return { owner: m[1], repo: m[2] };
+}
+
+// 由 repo 的 source 拼出 GitHub 仓库主页 URL
+export function repoUrl(source: string): string {
+  const { owner, repo } = parseSource(source);
+  return `https://github.com/${owner}/${repo}`;
 }
