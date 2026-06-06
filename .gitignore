@@ -9,3 +9,6 @@ public/images/
 .cache/
 playwright-report/
 test-results/
+
+.tmp-mockups/
+docs/superpowers/
