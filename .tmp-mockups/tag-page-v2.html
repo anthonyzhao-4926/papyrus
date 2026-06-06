@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<title>Papyrus · Tag 页面 V2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --c-bg: #ffffff;
+    --c-bg-elev: #f7f8fa;
+    --c-border: #e6e8eb;
+    --c-text: #1f2328;
+    --c-text-mute: #5b6470;
+    --c-text-faint: #8b95a3;
+    --c-accent: #2563eb;
+  }
+  body { background: var(--c-bg); color: var(--c-text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif; }
+  .border-border { border-color: var(--c-border); }
+  .text-text { color: var(--c-text); }
+  .text-text-mute { color: var(--c-text-mute); }
+  .text-text-faint { color: var(--c-text-faint); }
+  .text-accent { color: var(--c-accent); }
+  .bg-bg { background: var(--c-bg); }
+  .bg-bg-elev { background: var(--c-bg-elev); }
+  .switcher { position: fixed; top: 16px; left: 16px; z-index: 50; background: white; border: 1px solid var(--c-border); border-radius: 12px; padding: 8px; display: flex; gap: 6px; box-shadow: 0 10px 30px -10px rgba(0,0,0,.15); }
+  .switcher button { padding: 6px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; border: 1px solid transparent; }
+  .switcher button.active { background: #1f2328; color: white; }
+  .option { display: none; }
+  .option.active { display: block; }
+  /* 表格视图 */
+  .db-row { display: grid; grid-template-columns: 32px 1fr 180px 100px 80px; gap: 16px; align-items: center; padding: 10px 14px; border-radius: 6px; transition: background .12s; cursor: pointer; font-size: 14px; }
+  .db-row:hover { background: var(--c-bg-elev); }
+  .db-row-head { font-size: 11px; color: var(--c-text-faint); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; padding: 8px 14px; border-bottom: 1px solid var(--c-border); }
+  /* 极简档案库 */
+  .arch-link { display: grid; grid-template-columns: 80px 1fr; gap: 24px; padding: 14px 0; border-bottom: 1px solid var(--c-border); transition: opacity .15s; }
+  .arch-link:hover { opacity: 0.6; }
+  .arch-link .date { font-size: 12px; color: var(--c-text-faint); font-variant-numeric: tabular-nums; padding-top: 6px; }
+  .arch-link .title { font-size: 19px; line-height: 1.45; color: var(--c-text); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div class="switcher">
+  <button data-opt="1" class="active">1 · Magazine 封面</button>
+  <button data-opt="2">2 · 数据库表格</button>
+  <button data-opt="3">3 · 极简档案库</button>
+</div>
+
+<!-- 共用 header -->
+<template id="tpl-header">
+  <header class="flex items-center px-8 py-4 border-b border-border gap-6">
+    <a href="#" class="font-bold text-base tracking-tight">Papyrus<span class="text-accent">.</span></a>
+    <nav class="flex gap-1 text-sm">
+      <a href="#" class="px-3 py-1.5 rounded-md text-text-mute hover:text-text hover:bg-bg-elev">首页</a>
+      <a href="#" class="px-3 py-1.5 rounded-md text-text font-medium bg-bg-elev">📘 学习</a>
+      <a href="#" class="px-3 py-1.5 rounded-md text-text-mute hover:text-text hover:bg-bg-elev">💼 工作</a>
+      <a href="#" class="px-3 py-1.5 rounded-md text-text-mute hover:text-text hover:bg-bg-elev">🌱 生活</a>
+    </nav>
+    <div class="ml-auto flex items-center gap-3">
+      <button class="flex items-center gap-2 bg-bg-elev px-3 py-1.5 rounded-md text-xs text-text-faint w-64">
+        <span>🔍</span><span>搜索文章...</span>
+        <span class="ml-auto flex gap-1">
+          <span class="bg-bg border border-border rounded px-1.5 text-[11px]">⌘</span>
+          <span class="bg-bg border border-border rounded px-1.5 text-[11px]">K</span>
+        </span>
+      </button>
+      <button class="w-8 h-8 border border-border rounded-md text-sm">🌙</button>
+    </div>
+  </header>
+</template>
+
+<script>
+  const repos = [
+    { slug: "ai-skills", title: "个人 AI Skills", icon: "📘", count: 12 },
+    { slug: "reading", title: "读书笔记", icon: "📚", count: 7 },
+    { slug: "courses", title: "课程笔记", icon: "🎓", count: 3 },
+  ];
+  const articles = [
+    { date: "2026-06-04", short: "06-04", title: "用 unified 写一个自动编号的 rehype 插件", repo: "个人 AI Skills", repoIcon: "📘", min: 4, words: 1820,
+      excerpt: "从零搭建 unified 处理管道，自定义 rehype 插件，给 markdown 标题自动加 1./1.1. 编号⋯⋯" },
+    { date: "2026-05-30", short: "05-30", title: "读《思考，快与慢》第 7 章", repo: "读书笔记", repoIcon: "📚", min: 6, words: 2640,
+      excerpt: "系统 1 的直觉判断为什么经常出错？卡尼曼用 WYSIATI 解释⋯⋯" },
+    { date: "2026-05-28", short: "05-28", title: "Astro 5 的 content layer 笔记", repo: "个人 AI Skills", repoIcon: "📘", min: 5, words: 2100,
+      excerpt: "Content Layer 是 Astro 5 的新数据层抽象，把所有内容源统一成可查询的 collections⋯⋯" },
+    { date: "2026-05-19", short: "05-19", title: "Anki 牌组重构思路", repo: "课程笔记", repoIcon: "🎓", min: 4, words: 1500,
+      excerpt: "原本一本课就一个 deck，太大了。试着按章节拆 sub-deck⋯⋯" },
+    { date: "2026-05-12", short: "05-12", title: "Claude Code skill 系统拆解", repo: "个人 AI Skills", repoIcon: "📘", min: 7, words: 2980,
+      excerpt: "Claude Code 的 skill 是组织 AI 行为的元能力，这篇拆解 skill 的加载机制⋯⋯" },
+    { date: "2026-05-08", short: "05-08", title: "MIT 6.824 Lab 1 备忘", repo: "课程笔记", repoIcon: "🎓", min: 5, words: 2050,
+      excerpt: "实现 MapReduce coordinator 时遇到的几个坑⋯⋯" },
+    { date: "2026-04-30", short: "04-30", title: "读《Designing Data-Intensive Applications》第 5 章", repo: "读书笔记", repoIcon: "📚", min: 8, words: 3200,
+      excerpt: "复制策略的核心权衡：同步 vs 异步、单主 vs 多主⋯⋯" },
+    { date: "2026-04-22", short: "04-22", title: "重新组织个人 wiki 的层级", repo: "读书笔记", repoIcon: "📚", min: 3, words: 1200,
+      excerpt: "原本按主题分一级太散了，改成 GTD 风格⋯⋯" },
+    { date: "2026-04-15", short: "04-15", title: "Tailwind v4 的 @theme 指令", repo: "个人 AI Skills", repoIcon: "📘", min: 3, words: 1100,
+      excerpt: "Tailwind v4 把所有设计 token 收敛到 @theme 块⋯⋯" },
+    { date: "2026-04-08", short: "04-08", title: "Anki 算法的 FSRS 替代方案", repo: "课程笔记", repoIcon: "🎓", min: 6, words: 2400,
+      excerpt: "FSRS 比 SM-2 调度更准⋯⋯" },
+  ];
+</script>
+
+<!-- ============================================== -->
+<!-- 1 · Magazine 封面 -->
+<!-- ============================================== -->
+<div class="option active" data-opt="1">
+  <div id="hdr1"></div>
+
+  <!-- 沉浸式色块 banner（全宽） -->
+  <section class="relative overflow-hidden text-white" style="background: linear-gradient(135deg, #1e3a8a 0%, #4f46e5 50%, #7c3aed 100%);">
+    <div class="absolute -right-32 -top-32 w-[500px] h-[500px] rounded-full bg-white/5"></div>
+    <div class="absolute right-20 top-32 w-64 h-64 rounded-full bg-white/5"></div>
+    <div class="absolute -left-20 -bottom-20 w-72 h-72 rounded-full bg-white/5"></div>
+    <div class="max-w-[1100px] mx-auto px-8 py-20 relative">
+      <div class="text-[12px] tracking-[0.2em] uppercase opacity-70 font-semibold mb-4">标签 · TAG</div>
+      <div class="flex items-end gap-6 mb-6">
+        <div class="text-[88px] leading-none">📘</div>
+        <div>
+          <h1 class="text-[72px] font-extrabold tracking-[-0.03em] leading-none mb-3">学习</h1>
+          <p class="text-[16px] opacity-80">汇集了 3 本笔记本里关于「学习」的所有笔记</p>
+        </div>
+      </div>
+      <div class="flex gap-8 mt-10 text-[13px]">
+        <div><span class="text-[28px] font-extrabold block leading-none mb-1">22</span><span class="opacity-70">篇笔记</span></div>
+        <div class="w-px bg-white/20"></div>
+        <div><span class="text-[28px] font-extrabold block leading-none mb-1">3</span><span class="opacity-70">本笔记本</span></div>
+        <div class="w-px bg-white/20"></div>
+        <div><span class="text-[28px] font-extrabold block leading-none mb-1">2 天前</span><span class="opacity-70">最近更新</span></div>
+        <div class="w-px bg-white/20"></div>
+        <div><span class="text-[28px] font-extrabold block leading-none mb-1">4</span><span class="opacity-70">本月新增</span></div>
+      </div>
+    </div>
+  </section>
+
+  <main class="max-w-[1100px] mx-auto px-8">
+    <!-- 特写：1 大篇 + 4 小 -->
+    <section class="py-14 border-b border-border">
+      <div class="flex items-baseline justify-between mb-6">
+        <h2 class="text-[22px] font-bold tracking-[-0.01em]">特别推荐</h2>
+        <span class="text-[12px] text-text-faint">最新更新</span>
+      </div>
+      <div class="grid grid-cols-[1.4fr_1fr] gap-10">
+        <a href="#" class="group">
+          <div class="text-[11px] uppercase tracking-[0.14em] text-accent font-semibold mb-3">FEATURE · 06-04</div>
+          <h3 class="text-[34px] font-extrabold tracking-[-0.02em] leading-[1.15] mb-4 group-hover:text-accent transition" style="text-wrap: balance;">
+            用 unified 写一个自动编号的 rehype 插件
+          </h3>
+          <p class="text-[15px] text-text-mute leading-[1.7] mb-4">
+            从零搭建 unified 处理管道，自定义 rehype 插件，给 markdown 标题自动加 1./1.1. 编号；同时不破坏 anchor 链接和 TOC 提取流程⋯⋯
+          </p>
+          <div class="text-[12px] text-text-faint">📘 个人 AI Skills · 4 分钟阅读</div>
+        </a>
+        <div class="grid gap-5 content-start" id="featSide1"></div>
+      </div>
+    </section>
+
+    <!-- 全部文章 简洁列表 -->
+    <section class="py-14">
+      <div class="flex items-baseline justify-between mb-6">
+        <h2 class="text-[22px] font-bold tracking-[-0.01em]">全部 22 篇</h2>
+        <div class="flex gap-2 text-[12px]">
+          <span class="px-3 py-1 rounded-full bg-text text-bg font-medium">全部</span>
+          <span class="px-3 py-1 rounded-full border border-border text-text-mute">📘 12</span>
+          <span class="px-3 py-1 rounded-full border border-border text-text-mute">📚 7</span>
+          <span class="px-3 py-1 rounded-full border border-border text-text-mute">🎓 3</span>
+        </div>
+      </div>
+      <div id="list1"></div>
+    </section>
+  </main>
+</div>
+
+<!-- ============================================== -->
+<!-- 2 · 数据库表格视图（Notion 风） -->
+<!-- ============================================== -->
+<div class="option" data-opt="2">
+  <div id="hdr2"></div>
+  <main class="max-w-[1100px] mx-auto px-8">
+    <!-- 极简头 -->
+    <section class="pt-12 pb-6">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="text-[44px]">📘</span>
+        <h1 class="text-[40px] font-extrabold tracking-[-0.02em] leading-none">学习</h1>
+      </div>
+      <p class="text-[14px] text-text-mute m-0">22 篇 · 3 个笔记本 · 最近更新 2 天前</p>
+    </section>
+
+    <!-- 工具栏 -->
+    <section class="py-3 border-y border-border flex items-center gap-3 text-[13px]">
+      <button class="flex items-center gap-1.5 px-2.5 py-1.5 rounded hover:bg-bg-elev text-text-mute">
+        <span>⊞</span><span>表格</span>
+      </button>
+      <button class="flex items-center gap-1.5 px-2.5 py-1.5 rounded hover:bg-bg-elev text-text-mute">
+        <span>⊟</span><span>卡片</span>
+      </button>
+      <div class="w-px h-4 bg-border mx-1"></div>
+      <button class="flex items-center gap-1.5 px-2.5 py-1.5 rounded hover:bg-bg-elev text-text-mute">
+        <span>≡</span><span>笔记本</span>
+        <span class="text-text-faint">·</span>
+        <span>全部</span>
+      </button>
+      <button class="flex items-center gap-1.5 px-2.5 py-1.5 rounded hover:bg-bg-elev text-text-mute">
+        <span>↓</span><span>排序</span>
+        <span class="text-text-faint">·</span>
+        <span>日期 ↓</span>
+      </button>
+      <div class="ml-auto text-[12px] text-text-faint">显示 1–10 / 共 22</div>
+    </section>
+
+    <!-- 表格 -->
+    <section class="py-2">
+      <div class="db-row db-row-head">
+        <span></span>
+        <span>标题</span>
+        <span>笔记本</span>
+        <span>日期</span>
+        <span class="text-right">字数</span>
+      </div>
+      <div id="dbBody"></div>
+    </section>
+
+    <!-- 翻页 -->
+    <section class="py-6 flex items-center justify-center gap-2 text-[13px]">
+      <button class="px-3 py-1.5 border border-border rounded hover:bg-bg-elev">← 上一页</button>
+      <button class="px-3 py-1.5 rounded bg-text text-bg">1</button>
+      <button class="px-3 py-1.5 rounded hover:bg-bg-elev">2</button>
+      <button class="px-3 py-1.5 rounded hover:bg-bg-elev">3</button>
+      <button class="px-3 py-1.5 border border-border rounded hover:bg-bg-elev">下一页 →</button>
+    </section>
+  </main>
+</div>
+
+<!-- ============================================== -->
+<!-- 3 · 极简档案库 -->
+<!-- ============================================== -->
+<div class="option" data-opt="3">
+  <div id="hdr3"></div>
+  <main class="max-w-[820px] mx-auto px-8">
+    <!-- Hero 极简 -->
+    <section class="pt-16 pb-10">
+      <div class="text-[12px] tracking-[0.18em] uppercase text-text-faint font-semibold mb-3">/ 学习</div>
+      <h1 class="text-[36px] font-extrabold tracking-[-0.02em] leading-none mb-3">
+        📘 学习
+      </h1>
+      <p class="text-[14px] text-text-mute m-0">汇集 22 篇笔记，来自 3 本笔记本：个人 AI Skills、读书笔记、课程笔记</p>
+    </section>
+
+    <!-- 子 repo 筛选 chips -->
+    <section class="pb-6 flex flex-wrap gap-2 border-b border-border">
+      <a class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-text text-bg text-[13px] font-medium">全部 <span class="opacity-70">22</span></a>
+      <a class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border text-[13px] hover:bg-bg-elev transition">📘 个人 AI Skills <span class="text-text-faint">12</span></a>
+      <a class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border text-[13px] hover:bg-bg-elev transition">📚 读书笔记 <span class="text-text-faint">7</span></a>
+      <a class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border text-[13px] hover:bg-bg-elev transition">🎓 课程笔记 <span class="text-text-faint">3</span></a>
+    </section>
+
+    <!-- 按月分组的归档列表 -->
+    <section class="py-10" id="archive"></section>
+  </main>
+</div>
+
+<script>
+  function inject(id) { document.getElementById(id).innerHTML = document.getElementById("tpl-header").innerHTML; }
+  inject("hdr1"); inject("hdr2"); inject("hdr3");
+
+  // ===== 1 · Magazine =====
+  document.getElementById("featSide1").innerHTML = articles.slice(1, 5).map((a, i) => `
+    <a href="#" class="group block ${i > 0 ? 'border-t border-border pt-5' : ''}">
+      <div class="text-[11px] text-text-faint mb-1">${a.short} · ${a.repo}</div>
+      <h4 class="text-[16px] font-semibold leading-snug group-hover:text-accent transition">${a.title}</h4>
+    </a>
+  `).join("");
+  document.getElementById("list1").innerHTML = articles.map(a => `
+    <div class="grid grid-cols-[58px_1fr_auto] gap-4 items-baseline py-[12px] text-[14px] border-t border-border first:border-t-0">
+      <span class="text-[12px] text-text-faint tabular-nums">${a.short}</span>
+      <a href="#" class="text-text hover:text-accent truncate">${a.title}</a>
+      <span class="text-[11px] text-text-mute border border-border rounded-full px-2 py-[2px] whitespace-nowrap">${a.repo}</span>
+    </div>
+  `).join("");
+
+  // ===== 2 · 数据库表格 =====
+  document.getElementById("dbBody").innerHTML = articles.map(a => `
+    <a href="#" class="db-row">
+      <span class="text-[16px]">${a.repoIcon}</span>
+      <span class="text-text truncate">${a.title}</span>
+      <span class="text-text-mute text-[13px]">${a.repo}</span>
+      <span class="text-text-faint text-[13px] tabular-nums">${a.date}</span>
+      <span class="text-text-faint text-[13px] text-right tabular-nums">${a.words.toLocaleString()}</span>
+    </a>
+  `).join("");
+
+  // ===== 3 · 档案库（按月分组） =====
+  const byMonth = {};
+  articles.forEach(a => {
+    const m = a.date.slice(0, 7);
+    (byMonth[m] = byMonth[m] || []).push(a);
+  });
+  document.getElementById("archive").innerHTML = Object.entries(byMonth).map(([m, arr]) => {
+    const [y, mm] = m.split("-");
+    return `
+      <div class="mb-10">
+        <div class="flex items-baseline gap-3 mb-4">
+          <h2 class="text-[14px] uppercase tracking-[0.14em] text-text-faint font-bold">${y} 年 ${parseInt(mm)} 月</h2>
+          <span class="text-[12px] text-text-faint">${arr.length} 篇</span>
+        </div>
+        <div>
+          ${arr.map(a => `
+            <a href="#" class="arch-link">
+              <div class="date">${a.short}</div>
+              <div>
+                <div class="title">${a.title}</div>
+                <div class="text-[12px] text-text-faint mt-1">${a.repoIcon} ${a.repo} · ${a.min} 分钟</div>
+              </div>
+            </a>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  document.querySelectorAll(".switcher button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const opt = btn.dataset.opt;
+      document.querySelectorAll(".switcher button").forEach(b => b.classList.toggle("active", b.dataset.opt === opt));
+      document.querySelectorAll(".option").forEach(o => o.classList.toggle("active", o.dataset.opt === opt));
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -14,6 +14,19 @@ function isAncestor(nodePath: string[]): boolean {
   return nodePath.every((p, i) => p === currentPath[i]);
 }
 ---
+{depth === 0 && (
+  <div class="flex items-center justify-between px-1.5 mb-2">
+    <span class="text-[11px] uppercase tracking-wider text-text-faint">目录</span>
+    <button
+      id="locate-current-btn"
+      type="button"
+      class="locate-btn flex items-center gap-1 text-[11px] text-text-mute px-1.5 py-0.5 rounded"
+      title="展开并滚动到当前文章"
+    >
+      <span>⌖</span><span>定位</span>
+    </button>
+  </div>
+)}
 <ul class={depth === 0 ? "space-y-0.5" : "space-y-px"}>
   {nodes.map(node => {
     if (node.type === "dir") {
@@ -27,7 +40,7 @@ function isAncestor(nodePath: string[]): boolean {
       ].join(" ");
       return (
         <li>
-          <details open={ancestor} data-dir-key={dirKey} class={isTop && depth === 0 ? "tree-section" : ""}>
+          <details open data-dir-key={dirKey} class={isTop && depth === 0 ? "tree-section" : ""}>
             <summary class={summaryClass}>
               <span class="caret text-[9px] text-text-faint">▶</span>
               <span class="truncate">{node.name}</span>
@@ -71,5 +84,23 @@ function isAncestor(nodePath: string[]): boolean {
     details[open] > .tree-summary .caret { transform: rotate(90deg); }
     /* 顶层分组之间留点空气 */
     .tree-section { margin-bottom: 8px; }
+    .locate-btn { cursor: pointer; background: none; border: none; transition: color 120ms, background-color 120ms; }
+    .locate-btn:hover { color: var(--c-accent); background: var(--c-bg-elev); }
   </style>
 )}
+
+<script>
+  // 「定位」按钮：展开当前文章的祖先目录并平滑滚动到视口中央
+  function locateCurrent() {
+    const aside = document.querySelector("[data-repo-tree]");
+    const cur = aside?.querySelector<HTMLAnchorElement>('a[data-current="true"]');
+    if (!cur || !aside) return;
+    let p: HTMLElement | null = cur.parentElement;
+    while (p && p !== aside) {
+      if (p.tagName === "DETAILS") (p as HTMLDetailsElement).open = true;
+      p = p.parentElement;
+    }
+    cur.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  document.getElementById("locate-current-btn")?.addEventListener("click", locateCurrent);
+</script>

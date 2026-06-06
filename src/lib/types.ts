@@ -1,7 +1,9 @@
 export interface SiteConfig {
   name: string;
   description: string;
-  url: string;
+  heroTitle?: string;
+  heroHighlight?: string;
+  heroEyebrow?: string;
 }
 
 export interface RepoConfig {
@@ -11,11 +13,19 @@ export interface RepoConfig {
   icon: string;
   source: string;     // github.com/{owner}/{repo}
   branch: string;     // 默认 main
+  tags?: string[];    // 引用 PapyrusConfig.tags 中的 key
+}
+
+export interface TagConfig {
+  title: string;      // 中文标签名
+  icon?: string;      // emoji 或字符图标
+  description?: string; // tag 页面顶部描述；支持 {count} 占位符代入笔记本数
 }
 
 export interface PapyrusConfig {
   site: SiteConfig;
   repos: RepoConfig[];
+  tags?: Record<string, TagConfig>;  // tag slug → 显示信息
 }
 
 export interface Article {

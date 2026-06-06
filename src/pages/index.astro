@@ -1,6 +1,9 @@
 ---
 import HomeLayout from "~/layouts/HomeLayout.astro";
-import RepoCard from "~/components/RepoCard.astro";
+import HomeHero from "~/components/HomeHero.astro";
+import ActivityTimeline from "~/components/ActivityTimeline.astro";
+import WritingHeatmap from "~/components/WritingHeatmap.astro";
+import { formatAgo } from "~/lib/format";
 import { readFile } from "node:fs/promises";
 import type { PapyrusConfig, Article } from "~/lib/types";
 
@@ -10,21 +13,40 @@ const cache = JSON.parse(await readFile(".cache/articles.json", "utf-8")) as {
 };
 const { config, articles } = cache;
 
-const repoStats = config.repos.map((r) => {
-  const list = articles.filter((a) => a.repo === r.slug);
-  const latest = list.reduce(
-    (acc, a) => (a.date > acc ? a.date : acc),
-    "1970-01-01T00:00:00Z",
-  );
-  return { ...r, articleCount: list.length, latestDate: latest };
-});
+const sorted = [...articles].sort((a, b) => (a.date < b.date ? 1 : -1));
+
+const totalArticles = articles.length;
+const totalRepos = config.repos.length;
+const latestDate = sorted[0]?.date ?? null;
+const latestAgo = latestDate ? formatAgo(latestDate) : null;
+
+const repoMap: Record<string, typeof config.repos[number]> = {};
+for (const r of config.repos) repoMap[r.slug] = r;
+
+const recent = sorted.slice(0, 10);
 ---
 <HomeLayout title={config.site.name} description={config.site.description}>
-  <section class="text-center mb-10">
-    <h1 class="text-4xl font-extrabold tracking-tight mb-2">欢迎来到 {config.site.name}</h1>
-    <p class="text-text-mute">{config.site.description}</p>
-  </section>
-  <div class="grid grid-cols-3 gap-5">
-    {repoStats.map((r) => <RepoCard {...r} />)}
-  </div>
+  <HomeHero
+    site={config.site}
+    totalArticles={totalArticles}
+    totalRepos={totalRepos}
+    latestAgo={latestAgo}
+  />
+
+  {(recent.length > 0 || articles.length > 0) && (
+    <section class="py-12 border-b border-border">
+      <div class="grid grid-cols-[1fr_auto] gap-12 items-start">
+        <div class="min-w-0">
+          {recent.length > 0 && (
+            <ActivityTimeline articles={recent} repoMap={repoMap} />
+          )}
+        </div>
+        <div>
+          {articles.length > 0 && (
+            <WritingHeatmap articles={articles} weeks={26} cellSize={12} gap={3} />
+          )}
+        </div>
+      </div>
+    </section>
+  )}
 </HomeLayout>

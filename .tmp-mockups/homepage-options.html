@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<title>Papyrus 主页重设计 · 三种方案对比</title>
+<style>
+  :root {
+    --c-bg: #ffffff;
+    --c-bg-elev: #fafafa;
+    --c-border: #f1f5f9;
+    --c-border-strong: #e2e8f0;
+    --c-text: #1f2937;
+    --c-text-mute: #64748b;
+    --c-text-faint: #94a3b8;
+    --c-accent: #2563eb;
+    --c-accent-soft: #dbeafe;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: #eef2f7;
+    color: var(--c-text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .switcher {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--c-border-strong);
+    padding: 12px 24px;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 13px;
+  }
+  .switcher b { font-size: 14px; }
+  .switcher .chip {
+    padding: 5px 12px; border-radius: 999px;
+    background: #f1f5f9; color: var(--c-text-mute);
+    cursor: pointer; user-select: none;
+    transition: all .15s;
+  }
+  .switcher .chip:hover { background: #e2e8f0; }
+  .switcher .chip.active {
+    background: var(--c-accent); color: #fff;
+  }
+  .switcher .hint { margin-left: auto; color: var(--c-text-faint); font-size: 12px; }
+
+  .stage { padding: 36px 20px 80px; max-width: 1480px; margin: 0 auto; }
+  .frame {
+    background: var(--c-bg);
+    border: 1px solid var(--c-border-strong);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px -28px rgba(15,23,42,.18);
+    margin-bottom: 40px;
+  }
+  .frame-label {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 4px 12px;
+    font-size: 13px; color: var(--c-text-mute);
+  }
+  .frame-label .badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 6px;
+    background: var(--c-accent); color: #fff; font-weight: 700; font-size: 12px;
+  }
+  .frame-label h2 { margin: 0; font-size: 15px; color: var(--c-text); }
+  .frame-label .desc { color: var(--c-text-faint); }
+
+  /* 模拟站点头 */
+  .site-header {
+    display: flex; align-items: center; gap: 24px;
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--c-border);
+    font-size: 13px;
+  }
+  .site-header .logo { font-weight: 700; }
+  .site-header .logo span { color: var(--c-accent); }
+  .site-header nav { display: flex; gap: 18px; color: var(--c-text-mute); }
+  .site-header .search-pill {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 8px;
+    background: var(--c-bg-elev); padding: 6px 12px;
+    border-radius: 8px; font-size: 12px; color: var(--c-text-faint);
+    width: 280px;
+  }
+  .site-header .search-pill kbd {
+    margin-left: auto;
+    background: #fff; border: 1px solid var(--c-border-strong); border-radius: 4px;
+    padding: 1px 6px; font-size: 10px; font-family: inherit;
+  }
+  .site-header .theme {
+    width: 28px; height: 28px; border-radius: 6px;
+    border: 1px solid var(--c-border-strong); display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ====== Option A: Editorial 编辑部风 ====== */
+  .opt-a .hero {
+    padding: 72px 80px 56px;
+    border-bottom: 1px solid var(--c-border);
+    display: grid; grid-template-columns: 1.4fr 1fr; gap: 56px; align-items: end;
+  }
+  .opt-a .hero .greeting {
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--c-accent); font-weight: 600; margin-bottom: 14px;
+  }
+  .opt-a .hero h1 {
+    font-size: 56px; line-height: 1.05; font-weight: 800;
+    letter-spacing: -0.02em; margin: 0 0 18px;
+  }
+  .opt-a .hero h1 em {
+    font-style: normal; background: linear-gradient(120deg, #2563eb 30%, #7c3aed 80%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .opt-a .hero .tagline {
+    font-size: 17px; line-height: 1.65; color: var(--c-text-mute); max-width: 460px;
+    margin: 0;
+  }
+  .opt-a .hero .meta {
+    border-left: 1px solid var(--c-border-strong); padding-left: 28px;
+    display: grid; gap: 16px;
+  }
+  .opt-a .hero .meta .row { display: flex; justify-content: space-between; font-size: 13px; }
+  .opt-a .hero .meta .row .k { color: var(--c-text-faint); }
+  .opt-a .hero .meta .row .v { color: var(--c-text); font-weight: 600; }
+
+  .opt-a .section { padding: 48px 80px; }
+  .opt-a .section + .section { border-top: 1px solid var(--c-border); }
+  .opt-a .sec-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 22px;
+  }
+  .opt-a .sec-head h2 { margin: 0; font-size: 22px; letter-spacing: -0.01em; }
+  .opt-a .sec-head .more { font-size: 13px; color: var(--c-accent); }
+
+  .opt-a .featured {
+    display: grid; grid-template-columns: 1.2fr 1fr; gap: 36px;
+    padding: 28px; border: 1px solid var(--c-border-strong); border-radius: 14px;
+    background: linear-gradient(180deg, #fafbff 0%, #ffffff 100%);
+  }
+  .opt-a .featured .label {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--c-accent); font-weight: 700; margin-bottom: 14px;
+  }
+  .opt-a .featured h3 {
+    font-size: 28px; line-height: 1.25; margin: 0 0 12px;
+    font-weight: 700; letter-spacing: -0.01em;
+  }
+  .opt-a .featured p {
+    color: var(--c-text-mute); line-height: 1.7; margin: 0 0 18px;
+    font-size: 14.5px;
+  }
+  .opt-a .featured .byline { font-size: 12.5px; color: var(--c-text-faint); display: flex; gap: 10px; }
+  .opt-a .featured .thumb {
+    height: 200px; border-radius: 10px;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(37,99,235,.18), transparent 60%),
+      radial-gradient(circle at 70% 70%, rgba(124,58,237,.18), transparent 60%),
+      linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
+    display: flex; align-items: center; justify-content: center; font-size: 60px;
+  }
+
+  .opt-a .repos {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+  }
+  .opt-a .repo {
+    padding: 22px; border: 1px solid var(--c-border-strong); border-radius: 12px;
+    transition: all .15s; background: #fff;
+  }
+  .opt-a .repo:hover { box-shadow: 0 12px 28px -16px rgba(15,23,42,.2); }
+  .opt-a .repo .ic {
+    width: 36px; height: 36px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; margin-bottom: 14px;
+  }
+  .opt-a .repo .ic.blue { background: #dbeafe; }
+  .opt-a .repo .ic.green { background: #dcfce7; }
+  .opt-a .repo .ic.amber { background: #fef3c7; }
+  .opt-a .repo h4 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
+  .opt-a .repo .repo-desc { margin: 0 0 14px; font-size: 13px; color: var(--c-text-mute); line-height: 1.6; }
+  .opt-a .repo .repo-meta { font-size: 12px; color: var(--c-text-faint); display: flex; gap: 10px; }
+
+  .opt-a .timeline {
+    display: grid; gap: 0;
+  }
+  .opt-a .tl-row {
+    display: grid; grid-template-columns: 110px 1fr 100px; gap: 28px; align-items: baseline;
+    padding: 14px 0; border-top: 1px solid var(--c-border);
+    font-size: 14px;
+  }
+  .opt-a .tl-row:first-child { border-top: none; }
+  .opt-a .tl-row .date { font-size: 12px; color: var(--c-text-faint); font-variant-numeric: tabular-nums; }
+  .opt-a .tl-row .title { color: var(--c-text); }
+  .opt-a .tl-row .title:hover { color: var(--c-accent); }
+  .opt-a .tl-row .repo-tag {
+    font-size: 11px; color: var(--c-text-mute); text-align: right;
+    border: 1px solid var(--c-border-strong); padding: 2px 8px; border-radius: 999px;
+    justify-self: end;
+  }
+
+  /* ====== Option B: Dashboard 工作台 ====== */
+  .opt-b .top {
+    padding: 36px 56px 28px;
+    border-bottom: 1px solid var(--c-border);
+  }
+  .opt-b .top .crumb { font-size: 12px; color: var(--c-text-faint); margin-bottom: 6px; }
+  .opt-b .top h1 { font-size: 28px; margin: 0 0 6px; letter-spacing: -0.01em; }
+  .opt-b .top .sub { color: var(--c-text-mute); font-size: 14px; margin: 0 0 22px; }
+  .opt-b .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .opt-b .stat {
+    padding: 16px 18px; border: 1px solid var(--c-border-strong); border-radius: 10px;
+    background: #fff;
+  }
+  .opt-b .stat .n { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; }
+  .opt-b .stat .l { font-size: 12px; color: var(--c-text-faint); margin-top: 2px; }
+
+  .opt-b .body {
+    display: grid; grid-template-columns: 1fr 320px; gap: 36px;
+    padding: 32px 56px 48px;
+  }
+  .opt-b .body h2 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--c-text-faint); font-weight: 600; margin: 0 0 14px;
+  }
+  .opt-b .article-row {
+    display: grid; grid-template-columns: 80px 1fr auto; gap: 18px; align-items: center;
+    padding: 14px 12px; border-radius: 8px;
+    border-bottom: 1px solid var(--c-border);
+    font-size: 14px;
+  }
+  .opt-b .article-row:hover { background: var(--c-bg-elev); }
+  .opt-b .article-row .date { font-size: 12px; color: var(--c-text-faint); font-variant-numeric: tabular-nums; }
+  .opt-b .article-row .title { font-weight: 500; }
+  .opt-b .article-row .ico { color: var(--c-text-faint); font-size: 12px; }
+
+  .opt-b .repos-list { display: grid; gap: 8px; }
+  .opt-b .repo-pill {
+    display: grid; grid-template-columns: 32px 1fr auto; gap: 12px; align-items: center;
+    padding: 10px 12px; border-radius: 10px;
+    border: 1px solid var(--c-border-strong); background: #fff;
+    font-size: 13px;
+  }
+  .opt-b .repo-pill .ic {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: #eef2ff; display: flex; align-items: center; justify-content: center;
+  }
+  .opt-b .repo-pill .name { font-weight: 600; }
+  .opt-b .repo-pill .num { font-size: 11px; color: var(--c-text-faint); }
+  .opt-b .tags {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 24px;
+  }
+  .opt-b .tag {
+    font-size: 12px; padding: 4px 10px; border-radius: 999px;
+    background: var(--c-bg-elev); color: var(--c-text-mute);
+  }
+
+  /* ====== Option C: Bento / Modular 风 ====== */
+  .opt-c .canvas { padding: 32px 40px 48px; }
+  .opt-c .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: minmax(120px, auto);
+    gap: 14px;
+  }
+  .opt-c .tile {
+    border: 1px solid var(--c-border-strong); border-radius: 16px;
+    padding: 22px; background: #fff;
+    display: flex; flex-direction: column;
+  }
+  .opt-c .tile h3 {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--c-text-faint); font-weight: 600; margin: 0 0 12px;
+  }
+
+  .opt-c .t-hero {
+    grid-column: span 2; grid-row: span 2;
+    background:
+      radial-gradient(circle at 80% 10%, rgba(124,58,237,.12), transparent 60%),
+      radial-gradient(circle at 10% 90%, rgba(37,99,235,.10), transparent 60%),
+      #fff;
+  }
+  .opt-c .t-hero .greet { font-size: 12px; color: var(--c-accent); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; }
+  .opt-c .t-hero .big { font-size: 38px; line-height: 1.15; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 14px; }
+  .opt-c .t-hero p { color: var(--c-text-mute); line-height: 1.65; margin: 0 0 auto; max-width: 380px; }
+  .opt-c .t-hero .quick {
+    display: flex; gap: 10px; margin-top: 22px;
+  }
+  .opt-c .t-hero .quick a {
+    font-size: 13px; padding: 8px 14px; border-radius: 8px;
+    background: var(--c-accent); color: #fff; font-weight: 500;
+  }
+  .opt-c .t-hero .quick a.ghost { background: transparent; color: var(--c-text); border: 1px solid var(--c-border-strong); }
+
+  .opt-c .t-stat .n { font-size: 32px; font-weight: 700; letter-spacing: -0.01em; }
+  .opt-c .t-stat .delta { font-size: 12px; color: #16a34a; margin-top: 4px; }
+
+  .opt-c .t-latest { grid-column: span 2; grid-row: span 2; }
+  .opt-c .t-latest ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .opt-c .t-latest li {
+    display: grid; grid-template-columns: 1fr auto; gap: 12px;
+    font-size: 14px; padding-bottom: 10px; border-bottom: 1px dashed var(--c-border);
+  }
+  .opt-c .t-latest li:last-child { border-bottom: none; }
+  .opt-c .t-latest .d { color: var(--c-text-faint); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+  .opt-c .t-repos { grid-column: span 2; }
+  .opt-c .t-repos .rows { display: grid; gap: 8px; }
+  .opt-c .t-repos .r {
+    display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center;
+    padding: 6px 0; font-size: 13.5px;
+  }
+  .opt-c .t-repos .r .ic { width: 28px; height: 28px; border-radius: 7px; background: #eef2ff; display:flex; align-items:center; justify-content:center; font-size: 13px;}
+  .opt-c .t-repos .r .n { font-size: 11px; color: var(--c-text-faint); }
+
+  .opt-c .t-activity { grid-column: span 2; }
+  .opt-c .t-activity .heat {
+    display: grid; grid-template-columns: repeat(20, 1fr); gap: 3px; margin-top: 4px;
+  }
+  .opt-c .t-activity .cell { aspect-ratio: 1; border-radius: 2px; background: #eef2f7; }
+  .opt-c .t-activity .cell.l1 { background: #c7d2fe; }
+  .opt-c .t-activity .cell.l2 { background: #818cf8; }
+  .opt-c .t-activity .cell.l3 { background: #4f46e5; }
+  .opt-c .t-activity .legend { display: flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 11px; color: var(--c-text-faint); }
+
+  /* 选项展开 / 收起 */
+  .opt { display: none; }
+  .opt.show { display: block; }
+</style>
+</head>
+<body>
+
+<div class="switcher">
+  <b>Papyrus 主页重设计</b>
+  <span class="chip active" data-target="a">方案 A · 编辑部</span>
+  <span class="chip" data-target="b">方案 B · 工作台</span>
+  <span class="chip" data-target="c">方案 C · Bento 模块</span>
+  <span class="hint">点上方切换 · 当前对比：1440px 桌面视图</span>
+</div>
+
+<div class="stage">
+
+  <!-- ===================== 方案 A ===================== -->
+  <section class="opt show" id="opt-a">
+    <div class="frame-label">
+      <span class="badge">A</span>
+      <h2>编辑部 / Editorial</h2>
+      <span class="desc">— 大标题 hero + 精选文章 + 笔记本网格 + 时间轴</span>
+    </div>
+
+    <div class="frame opt-a">
+      <div class="site-header">
+        <div class="logo">Papyrus<span>.</span></div>
+        <nav><a>首页</a><a>笔记本</a><a>标签</a><a>关于</a></nav>
+        <div class="search-pill">🔍 搜索文章... <kbd>⌘K</kbd></div>
+        <div class="theme">🌓</div>
+      </div>
+
+      <div class="hero">
+        <div>
+          <div class="greeting">2026 · 第 23 周</div>
+          <h1>把零散的想法<br/><em>沉淀成可以回看的东西</em>。</h1>
+          <p class="tagline">这里聚合我在 GitHub 上几个 repo 里写的笔记：技能卡、技术备忘、读书摘录，以及偶尔的胡思乱想。</p>
+        </div>
+        <div class="meta">
+          <div class="row"><span class="k">文章总数</span><span class="v">48 篇</span></div>
+          <div class="row"><span class="k">笔记本</span><span class="v">3 个</span></div>
+          <div class="row"><span class="k">最近更新</span><span class="v">今天</span></div>
+          <div class="row"><span class="k">本月新增</span><span class="v">6 篇</span></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="sec-head">
+          <h2>最新</h2>
+          <a class="more">查看所有 →</a>
+        </div>
+        <div class="featured">
+          <div>
+            <div class="label">● 精选 · 最近更新</div>
+            <h3>用 Astro + GitHub 聚合多个 repo 的笔记</h3>
+            <p>把所有 markdown 笔记零运维地聚合成一个静态博客的完整方案：prebuild 拉取、Shiki 渲染、Pagefind 索引、暗色主题切换……</p>
+            <div class="byline"><span>📘 个人 AI Skills</span><span>·</span><span>2026-06-04</span><span>·</span><span>约 12 分钟阅读</span></div>
+          </div>
+          <div class="thumb">📜</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="sec-head">
+          <h2>笔记本</h2>
+          <a class="more">3 个 →</a>
+        </div>
+        <div class="repos">
+          <a class="repo">
+            <div class="ic blue">📘</div>
+            <h4>个人 AI Skills</h4>
+            <p class="repo-desc">这里存放了我的个人 skill，包含各种实践卡片与触发模式。</p>
+            <div class="repo-meta"><span>23 篇</span><span>·</span><span>今天更新</span></div>
+          </a>
+          <a class="repo">
+            <div class="ic green">🛠️</div>
+            <h4>工程备忘录</h4>
+            <p class="repo-desc">日常工程问题的解决方案、CLI 速查、配置片段。</p>
+            <div class="repo-meta"><span>17 篇</span><span>·</span><span>3 天前更新</span></div>
+          </a>
+          <a class="repo">
+            <div class="ic amber">📚</div>
+            <h4>读书笔记</h4>
+            <p class="repo-desc">技术书与非虚构作品的摘录、批注与思考。</p>
+            <div class="repo-meta"><span>8 篇</span><span>·</span><span>2 周前更新</span></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="sec-head">
+          <h2>最近活动</h2>
+          <a class="more">RSS</a>
+        </div>
+        <div class="timeline">
+          <div class="tl-row"><span class="date">06-04</span><a class="title">用 Astro + GitHub 聚合多个 repo 的笔记</a><span class="repo-tag">个人 AI Skills</span></div>
+          <div class="tl-row"><span class="date">06-02</span><a class="title">收紧页面左右边距；TOC 编号显示策略</a><span class="repo-tag">个人 AI Skills</span></div>
+          <div class="tl-row"><span class="date">05-29</span><a class="title">macOS 上让 zsh 自动补全 git 别名</a><span class="repo-tag">工程备忘录</span></div>
+          <div class="tl-row"><span class="date">05-25</span><a class="title">《Designing Data-Intensive Applications》第 5 章笔记</a><span class="repo-tag">读书笔记</span></div>
+          <div class="tl-row"><span class="date">05-21</span><a class="title">左侧导航 Notion 风重设计 + 折叠 + 当前定位</a><span class="repo-tag">个人 AI Skills</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 方案 B ===================== -->
+  <section class="opt" id="opt-b">
+    <div class="frame-label">
+      <span class="badge">B</span>
+      <h2>工作台 / Dashboard</h2>
+      <span class="desc">— 顶部数据条 + 左侧文章列表 + 右侧笔记本面板</span>
+    </div>
+
+    <div class="frame opt-b">
+      <div class="site-header">
+        <div class="logo">Papyrus<span>.</span></div>
+        <nav><a>首页</a><a>笔记本</a><a>标签</a></nav>
+        <div class="search-pill">🔍 搜索文章... <kbd>⌘K</kbd></div>
+        <div class="theme">🌓</div>
+      </div>
+
+      <div class="top">
+        <div class="crumb">主页 · 我的笔记工作台</div>
+        <h1>下午好，Anthony。</h1>
+        <p class="sub">你已经写了 48 篇笔记。今天的最近一次更新发生在 16:23。</p>
+        <div class="stats">
+          <div class="stat"><div class="n">48</div><div class="l">总文章数</div></div>
+          <div class="stat"><div class="n">3</div><div class="l">笔记本</div></div>
+          <div class="stat"><div class="n">6</div><div class="l">本月新增</div></div>
+          <div class="stat"><div class="n">今天</div><div class="l">上次更新</div></div>
+        </div>
+      </div>
+
+      <div class="body">
+        <div>
+          <h2>最近的文章</h2>
+          <div>
+            <div class="article-row"><span class="date">06-04</span><span class="title">用 Astro + GitHub 聚合多个 repo 的笔记</span><span class="ico">📘 个人 AI Skills</span></div>
+            <div class="article-row"><span class="date">06-02</span><span class="title">收紧页面左右边距；TOC 编号显示策略</span><span class="ico">📘 个人 AI Skills</span></div>
+            <div class="article-row"><span class="date">05-29</span><span class="title">macOS 上让 zsh 自动补全 git 别名</span><span class="ico">🛠️ 工程备忘录</span></div>
+            <div class="article-row"><span class="date">05-25</span><span class="title">《DDIA》第 5 章：复制 — 一致性与故障</span><span class="ico">📚 读书笔记</span></div>
+            <div class="article-row"><span class="date">05-21</span><span class="title">左侧导航 Notion 风重设计 + 折叠 + 当前定位</span><span class="ico">📘 个人 AI Skills</span></div>
+            <div class="article-row"><span class="date">05-18</span><span class="title">SearchModal 的键盘交互：方向键 / Esc / Enter</span><span class="ico">📘 个人 AI Skills</span></div>
+          </div>
+        </div>
+
+        <aside>
+          <h2>笔记本</h2>
+          <div class="repos-list">
+            <a class="repo-pill"><div class="ic">📘</div><div><div class="name">个人 AI Skills</div><div class="num">23 篇 · 今天</div></div><span>›</span></a>
+            <a class="repo-pill"><div class="ic">🛠️</div><div><div class="name">工程备忘录</div><div class="num">17 篇 · 3 天前</div></div><span>›</span></a>
+            <a class="repo-pill"><div class="ic">📚</div><div><div class="name">读书笔记</div><div class="num">8 篇 · 2 周前</div></div><span>›</span></a>
+          </div>
+
+          <h2 style="margin-top:24px">热门标签</h2>
+          <div class="tags">
+            <span class="tag">astro</span>
+            <span class="tag">skill</span>
+            <span class="tag">macOS</span>
+            <span class="tag">ddia</span>
+            <span class="tag">git</span>
+            <span class="tag">tailwind</span>
+            <span class="tag">typescript</span>
+            <span class="tag">读书</span>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 方案 C ===================== -->
+  <section class="opt" id="opt-c">
+    <div class="frame-label">
+      <span class="badge">C</span>
+      <h2>Bento / 模块拼贴</h2>
+      <span class="desc">— 不规则模块拼接：hero、统计、最新、笔记本、热力图</span>
+    </div>
+
+    <div class="frame opt-c">
+      <div class="site-header">
+        <div class="logo">Papyrus<span>.</span></div>
+        <nav><a>首页</a><a>笔记本</a><a>标签</a></nav>
+        <div class="search-pill">🔍 搜索文章... <kbd>⌘K</kbd></div>
+        <div class="theme">🌓</div>
+      </div>
+
+      <div class="canvas">
+        <div class="grid">
+          <div class="tile t-hero">
+            <div class="greet">Papyrus · 2026</div>
+            <div class="big">我把笔记<br/>都搬到了这里。</div>
+            <p>聚合我在 GitHub 上几个 repo 里写的内容，零运维静态博客，支持搜索、暗色与公式。</p>
+            <div class="quick">
+              <a>📖 开始阅读</a>
+              <a class="ghost">⌘K 搜索</a>
+            </div>
+          </div>
+
+          <div class="tile t-stat">
+            <h3>文章总数</h3>
+            <div class="n">48</div>
+            <div class="delta">+6 本月</div>
+          </div>
+          <div class="tile t-stat">
+            <h3>笔记本</h3>
+            <div class="n">3</div>
+            <div class="delta">活跃中</div>
+          </div>
+
+          <div class="tile t-latest">
+            <h3>最近的文章</h3>
+            <ul>
+              <li><span>用 Astro + GitHub 聚合多个 repo 的笔记</span><span class="d">06-04</span></li>
+              <li><span>收紧页面左右边距；TOC 编号显示策略</span><span class="d">06-02</span></li>
+              <li><span>macOS 上让 zsh 自动补全 git 别名</span><span class="d">05-29</span></li>
+              <li><span>《DDIA》第 5 章：复制 — 一致性与故障</span><span class="d">05-25</span></li>
+              <li><span>左侧导航 Notion 风重设计 + 折叠 + 当前定位</span><span class="d">05-21</span></li>
+            </ul>
+          </div>
+
+          <div class="tile t-repos">
+            <h3>笔记本</h3>
+            <div class="rows">
+              <a class="r"><div class="ic">📘</div><div>个人 AI Skills</div><span class="n">23 篇</span></a>
+              <a class="r"><div class="ic">🛠️</div><div>工程备忘录</div><span class="n">17 篇</span></a>
+              <a class="r"><div class="ic">📚</div><div>读书笔记</div><span class="n">8 篇</span></a>
+            </div>
+          </div>
+
+          <div class="tile t-activity">
+            <h3>近 20 周写作热力</h3>
+            <div class="heat">
+              <!-- 20 列，自动用 JS 填充 -->
+            </div>
+            <div class="legend">少 <span style="display:inline-block;width:10px;height:10px;background:#eef2f7;border-radius:2px"></span><span style="display:inline-block;width:10px;height:10px;background:#c7d2fe;border-radius:2px"></span><span style="display:inline-block;width:10px;height:10px;background:#818cf8;border-radius:2px"></span><span style="display:inline-block;width:10px;height:10px;background:#4f46e5;border-radius:2px"></span> 多</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // 切换
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      const t = chip.dataset.target;
+      document.querySelectorAll('.opt').forEach(o => o.classList.remove('show'));
+      document.getElementById('opt-' + t).classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // 热力图填充
+  const heat = document.querySelector('.t-activity .heat');
+  if (heat) {
+    const levels = ['', 'l1', 'l2', 'l3'];
+    // 20 列 × 5 行 = 100 个 cell（约一周一列、5 个工作日）
+    const totalCols = 20, rows = 5;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < totalCols; c++) {
+        const div = document.createElement('div');
+        // 模拟一些随机分布，最近几列偏强
+        const recency = c / totalCols; // 0~1
+        const intensity = Math.random() * 0.6 + recency * 0.4;
+        const lvl = intensity > 0.75 ? 3 : intensity > 0.5 ? 2 : intensity > 0.3 ? 1 : 0;
+        div.className = 'cell ' + (levels[lvl] || '');
+        heat.appendChild(div);
+      }
+    }
+  }
+</script>
+
+</body>
+</html>

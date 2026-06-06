@@ -1,8 +1,21 @@
 {
   "site": {
     "name": "Papyrus",
-    "description": "我把笔记都搬到这里了",
-    "url": "https://blog.example.com"
+    "description": "你好，我叫赵鑫，很高兴认识你"
+  },
+  "tags": {
+    "study": {
+      "title": "学习",
+      "icon": "📘"
+    },
+    "work": {
+      "title": "工作",
+      "icon": "💼"
+    },
+    "life": {
+      "title": "生活",
+      "icon": "🌱"
+    }
   },
   "repos": [
     {
@@ -11,7 +24,10 @@
       "description": "这里存放了我的个人skill",
       "icon": "📘",
       "source": "github.com/anthonyzhao-4926/xin-skills",
-      "branch": "main"
+      "branch": "main",
+      "tags": [
+        "study"
+      ]
     }
   ]
 }

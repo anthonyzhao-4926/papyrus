@@ -1,14 +1,40 @@
 ---
 import ThemeToggle from "~/components/ThemeToggle.astro";
+import { loadConfig } from "~/lib/config";
+
+const config = await loadConfig();
+const tagEntries = Object.entries(config.tags ?? {});  // [slug, { title, icon }][]
+
+// 当前路径用来高亮（首页 / tag）
+const pathname = Astro.url.pathname;
+const isHome = pathname === "/" || pathname === "";
+const currentTag = pathname.startsWith("/tag/") ? pathname.split("/")[2] : null;
 ---
 <header class="flex items-center px-8 py-4 border-b border-border gap-6">
-  <a href="/" class="font-bold text-base tracking-tight">
-    Papyrus<span class="text-accent">.</span>
+  <a href="/" class="font-bold text-base tracking-tight shrink-0">
+    {config.site.name}<span class="text-accent">.</span>
   </a>
-  <nav class="flex gap-5 text-sm text-text-mute">
-    <a href="/" class="hover:text-text">首页</a>
+  <nav class="flex gap-1 text-sm overflow-x-auto">
+    <a
+      href="/"
+      class={`px-3 py-1.5 rounded-md whitespace-nowrap transition ${
+        isHome ? "text-text font-medium bg-bg-elev" : "text-text-mute hover:text-text hover:bg-bg-elev"
+      }`}
+    >
+      首页
+    </a>
+    {tagEntries.map(([slug, tag]) => (
+      <a
+        href={`/tag/${slug}`}
+        class={`px-3 py-1.5 rounded-md whitespace-nowrap transition ${
+          currentTag === slug ? "text-text font-medium bg-bg-elev" : "text-text-mute hover:text-text hover:bg-bg-elev"
+        }`}
+      >
+        {tag.icon && <span class="mr-1">{tag.icon}</span>}{tag.title}
+      </a>
+    ))}
   </nav>
-  <div class="ml-auto flex items-center gap-3">
+  <div class="ml-auto flex items-center gap-3 shrink-0">
     <button
       id="open-search"
       type="button"

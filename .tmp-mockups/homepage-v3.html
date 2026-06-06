@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<title>Papyrus · 首页布局选择 V3</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --c-bg: #ffffff;
+    --c-bg-elev: #f7f8fa;
+    --c-border: #e6e8eb;
+    --c-text: #1f2328;
+    --c-text-mute: #5b6470;
+    --c-text-faint: #8b95a3;
+    --c-accent: #2563eb;
+  }
+  body { background: var(--c-bg); color: var(--c-text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif; }
+  .border-border { border-color: var(--c-border); }
+  .text-text { color: var(--c-text); }
+  .text-text-mute { color: var(--c-text-mute); }
+  .text-text-faint { color: var(--c-text-faint); }
+  .text-accent { color: var(--c-accent); }
+  .bg-bg { background: var(--c-bg); }
+  .bg-bg-elev { background: var(--c-bg-elev); }
+  .switcher { position: fixed; top: 16px; left: 16px; z-index: 50; background: white; border: 1px solid var(--c-border); border-radius: 12px; padding: 8px; display: flex; gap: 6px; box-shadow: 0 10px 30px -10px rgba(0,0,0,.15); }
+  .switcher button { padding: 6px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; border: 1px solid transparent; }
+  .switcher button.active { background: #1f2328; color: white; }
+  .option { display: none; }
+  .option.active { display: block; }
+  .heat-cell { border-radius: 2px; }
+  .heat-0 { background: var(--c-border); }
+  .heat-1 { background: #c7d2fe; }
+  .heat-2 { background: #818cf8; }
+  .heat-3 { background: #4f46e5; }
+  .tag-chip { display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 999px; font-size: 13px; gap: 4px; transition: all .15s; cursor: pointer; border: 1px solid var(--c-border); }
+  .tag-chip:hover { background: var(--c-bg-elev); }
+</style>
+</head>
+<body>
+
+<div class="switcher">
+  <button data-opt="A" class="active">A · 仪表盘</button>
+  <button data-opt="B">B · 杂志特写</button>
+  <button data-opt="C">C · Notion 卡片</button>
+</div>
+
+<!-- 共用 header -->
+<template id="tpl-header">
+  <header class="flex items-center px-8 py-4 border-b border-border gap-6">
+    <a href="#" class="font-bold text-base tracking-tight">Papyrus<span class="text-accent">.</span></a>
+    <nav class="flex gap-1 text-sm">
+      <a href="#" class="px-3 py-1.5 rounded-md text-text font-medium bg-bg-elev">首页</a>
+      <a href="#" class="px-3 py-1.5 rounded-md text-text-mute hover:text-text hover:bg-bg-elev">📘 学习</a>
+      <a href="#" class="px-3 py-1.5 rounded-md text-text-mute hover:text-text hover:bg-bg-elev">💼 工作</a>
+      <a href="#" class="px-3 py-1.5 rounded-md text-text-mute hover:text-text hover:bg-bg-elev">🌱 生活</a>
+    </nav>
+    <div class="ml-auto flex items-center gap-3">
+      <button class="flex items-center gap-2 bg-bg-elev px-3 py-1.5 rounded-md text-xs text-text-faint w-64">
+        <span>🔍</span><span>搜索文章...</span>
+        <span class="ml-auto flex gap-1">
+          <span class="bg-bg border border-border rounded px-1.5 text-[11px]">⌘</span>
+          <span class="bg-bg border border-border rounded px-1.5 text-[11px]">K</span>
+        </span>
+      </button>
+      <button class="w-8 h-8 border border-border rounded-md text-sm">🌙</button>
+    </div>
+  </header>
+</template>
+
+<!-- 共用 hero -->
+<template id="tpl-hero">
+  <section class="grid grid-cols-[1.4fr_1fr] gap-14 items-end pb-14 pt-4 border-b border-border">
+    <div>
+      <div class="text-[12px] tracking-[0.18em] uppercase text-accent font-semibold mb-[14px]">2026 · 第 23 周</div>
+      <h1 class="font-extrabold tracking-[-0.02em] leading-[1.1] text-[52px] mb-[18px]" style="text-wrap: balance;">
+        把零散的想法<br />
+        <em class="not-italic bg-clip-text text-transparent" style="background-image: linear-gradient(120deg, #2563eb 30%, #7c3aed 80%);">沉淀成可以回看的东西。</em>
+      </h1>
+      <p class="text-[17px] leading-[1.65] text-text-mute max-w-[460px] m-0">我把笔记都搬到这里了</p>
+    </div>
+    <div class="border-l border-border pl-7 grid gap-4">
+      <div class="flex justify-between text-[13px]"><span class="text-text-faint">文章总数</span><span class="font-semibold">48 篇</span></div>
+      <div class="flex justify-between text-[13px]"><span class="text-text-faint">笔记本</span><span class="font-semibold">4 个</span></div>
+      <div class="flex justify-between text-[13px]"><span class="text-text-faint">最近更新</span><span class="font-semibold">2 天前</span></div>
+    </div>
+  </section>
+</template>
+
+<script>
+  const sampleArticles = [
+    ["06-04", "用 unified 写一个自动编号的 rehype 插件", "AI Skills", "学习"],
+    ["06-02", "Cloudflare Tunnel 替代内网穿透", "工作笔记", "工作"],
+    ["05-30", "读《思考，快与慢》第 7 章", "读书", "学习"],
+    ["05-28", "Astro 5 的 content layer 笔记", "AI Skills", "学习"],
+    ["05-26", "周复盘：把模糊任务先拆细", "生活", "生活"],
+    ["05-22", "Tailwind v4 的 @theme inline", "工作笔记", "工作"],
+    ["05-19", "Anki 牌组重构思路", "学习", "学习"],
+    ["05-15", "把 dotfiles 拆成 stow 单元", "工作笔记", "工作"],
+    ["05-12", "Claude Code skill 系统拆解", "AI Skills", "学习"],
+    ["05-09", "重新组织个人 wiki 的层级", "生活", "生活"],
+  ];
+  function activityRow(a) {
+    return `<div class="grid grid-cols-[58px_1fr_auto] gap-4 items-baseline py-[12px] text-[14px] border-t border-border first:border-t-0">
+      <span class="text-[12px] text-text-faint tabular-nums">${a[0]}</span>
+      <a href="#" class="text-text hover:text-accent truncate" title="${a[1]}">${a[1]}</a>
+      <span class="text-[11px] text-text-mute border border-border rounded-full px-2 py-[2px] whitespace-nowrap">${a[2]}</span>
+    </div>`;
+  }
+  function activityList(n=8) { return sampleArticles.slice(0, n).map(activityRow).join(""); }
+  function heatGrid(weeks=26, cell=12, gap=3) {
+    const cells = [];
+    for (let i = 0; i < weeks * 7; i++) {
+      const r = Math.random();
+      const cls = r < 0.7 ? "heat-0" : r < 0.85 ? "heat-1" : r < 0.95 ? "heat-2" : "heat-3";
+      cells.push(`<div class="heat-cell ${cls}" style="width:${cell}px;height:${cell}px"></div>`);
+    }
+    return `<div class="grid" style="grid-template-columns: repeat(${weeks}, ${cell}px); grid-template-rows: repeat(7, ${cell}px); grid-auto-flow: column; gap: ${gap}px;">${cells.join("")}</div>`;
+  }
+</script>
+
+<!-- ============================================== -->
+<!-- Option A · 仪表盘 Dashboard -->
+<!-- ============================================== -->
+<div class="option active" data-opt="A">
+  <div id="hdrA"></div>
+  <main class="max-w-[1100px] mx-auto px-8">
+    <div id="heroA"></div>
+
+    <!-- 4 数据条 -->
+    <section class="py-10 border-b border-border grid grid-cols-4 gap-4">
+      <div class="border border-border rounded-xl p-5">
+        <div class="text-[11px] uppercase tracking-[0.14em] text-text-faint font-semibold mb-2">本月节奏</div>
+        <div class="text-[26px] font-extrabold tracking-tight">6<span class="text-[13px] font-normal text-text-mute ml-1">篇</span></div>
+        <div class="text-[12px] text-emerald-600 mt-1">↑ 比上月 +2</div>
+      </div>
+      <div class="border border-border rounded-xl p-5">
+        <div class="text-[11px] uppercase tracking-[0.14em] text-text-faint font-semibold mb-2">连续写作</div>
+        <div class="text-[26px] font-extrabold tracking-tight">12<span class="text-[13px] font-normal text-text-mute ml-1">天</span></div>
+        <div class="text-[12px] text-text-faint mt-1">历史最长 28 天</div>
+      </div>
+      <div class="border border-border rounded-xl p-5">
+        <div class="text-[11px] uppercase tracking-[0.14em] text-text-faint font-semibold mb-2">本季覆盖</div>
+        <div class="text-[26px] font-extrabold tracking-tight">3<span class="text-[13px] font-normal text-text-mute ml-1">个标签</span></div>
+        <div class="text-[12px] text-text-faint mt-1">学习 · 工作 · 生活</div>
+      </div>
+      <div class="border border-border rounded-xl p-5">
+        <div class="text-[11px] uppercase tracking-[0.14em] text-text-faint font-semibold mb-2">最近更新</div>
+        <div class="text-[26px] font-extrabold tracking-tight">2<span class="text-[13px] font-normal text-text-mute ml-1">天前</span></div>
+        <div class="text-[12px] text-text-faint mt-1">AI Skills</div>
+      </div>
+    </section>
+
+    <!-- 通栏热力图 -->
+    <section class="py-10 border-b border-border">
+      <div class="flex items-baseline justify-between mb-[16px]">
+        <h2 class="text-[18px] font-bold tracking-[-0.01em]">写作热力 · 全年</h2>
+        <span class="text-[12px] text-text-faint">52 周</span>
+      </div>
+      <div id="heatA" class="overflow-x-auto"></div>
+    </section>
+
+    <!-- 双列：活动 + 标签入口 -->
+    <section class="py-10">
+      <div class="grid grid-cols-[1.4fr_1fr] gap-14 items-start">
+        <div>
+          <h2 class="text-[22px] font-bold tracking-[-0.01em] mb-[18px]">最近活动</h2>
+          <div id="actA"></div>
+        </div>
+        <div>
+          <h2 class="text-[22px] font-bold tracking-[-0.01em] mb-[18px]">按标签</h2>
+          <div class="grid grid-cols-1 gap-3">
+            <a href="#" class="flex items-center justify-between p-4 border border-border rounded-xl hover:bg-bg-elev transition">
+              <span class="flex items-center gap-3"><span class="text-xl">📘</span><span class="font-semibold">学习</span></span>
+              <span class="text-[12px] text-text-faint">3 个笔记本 · 22 篇</span>
+            </a>
+            <a href="#" class="flex items-center justify-between p-4 border border-border rounded-xl hover:bg-bg-elev transition">
+              <span class="flex items-center gap-3"><span class="text-xl">💼</span><span class="font-semibold">工作</span></span>
+              <span class="text-[12px] text-text-faint">2 个笔记本 · 18 篇</span>
+            </a>
+            <a href="#" class="flex items-center justify-between p-4 border border-border rounded-xl hover:bg-bg-elev transition">
+              <span class="flex items-center gap-3"><span class="text-xl">🌱</span><span class="font-semibold">生活</span></span>
+              <span class="text-[12px] text-text-faint">1 个笔记本 · 8 篇</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ============================================== -->
+<!-- Option B · 杂志特写 Editorial -->
+<!-- ============================================== -->
+<div class="option" data-opt="B">
+  <div id="hdrB"></div>
+  <main class="max-w-[1100px] mx-auto px-8">
+    <div id="heroB"></div>
+
+    <!-- 最新精选：大特写 + 侧列表 -->
+    <section class="py-12 border-b border-border">
+      <div class="flex items-baseline justify-between mb-[22px]">
+        <h2 class="text-[22px] font-bold tracking-[-0.01em]">最近写下</h2>
+        <span class="text-[12px] text-text-faint">最新 4 篇</span>
+      </div>
+      <div class="grid grid-cols-[1.4fr_1fr] gap-10">
+        <!-- 大特写 -->
+        <a href="#" class="group">
+          <div class="h-[200px] rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 mb-5 relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-white/10"></div>
+            <div class="absolute right-20 top-20 w-24 h-24 rounded-full bg-white/10"></div>
+            <div class="absolute left-6 bottom-5 text-white">
+              <div class="text-[12px] opacity-80 mb-1">06-04 · AI Skills</div>
+              <div class="text-[20px] font-bold">📘 学习</div>
+            </div>
+          </div>
+          <h3 class="text-[24px] font-extrabold tracking-[-0.02em] leading-[1.2] mb-3 group-hover:text-accent transition">
+            用 unified 写一个自动编号的 rehype 插件
+          </h3>
+          <p class="text-[14px] text-text-mute leading-[1.65]">
+            从零搭建 unified 处理管道，自定义 rehype 插件，给 markdown 标题自动加 1./1.1./1.1.1. 编号；同时不破坏 anchor 链接和 TOC 提取流程⋯⋯
+          </p>
+          <div class="mt-4 text-[12px] text-text-faint">4 分钟阅读</div>
+        </a>
+        <!-- 侧列表 -->
+        <div class="grid grid-cols-1 gap-5 content-start">
+          <a href="#" class="block border-b border-border pb-4 hover:opacity-70 transition">
+            <div class="text-[11px] text-text-faint mb-1">06-02 · 工作笔记</div>
+            <div class="text-[15px] font-semibold leading-snug">Cloudflare Tunnel 替代内网穿透</div>
+          </a>
+          <a href="#" class="block border-b border-border pb-4 hover:opacity-70 transition">
+            <div class="text-[11px] text-text-faint mb-1">05-30 · 读书</div>
+            <div class="text-[15px] font-semibold leading-snug">读《思考，快与慢》第 7 章</div>
+          </a>
+          <a href="#" class="block border-b border-border pb-4 hover:opacity-70 transition">
+            <div class="text-[11px] text-text-faint mb-1">05-28 · AI Skills</div>
+            <div class="text-[15px] font-semibold leading-snug">Astro 5 的 content layer 笔记</div>
+          </a>
+          <a href="#" class="block hover:opacity-70 transition">
+            <div class="text-[11px] text-text-faint mb-1">05-26 · 生活</div>
+            <div class="text-[15px] font-semibold leading-snug">周复盘：把模糊任务先拆细</div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 标签云 -->
+    <section class="py-10 border-b border-border">
+      <h2 class="text-[18px] font-bold tracking-[-0.01em] mb-4 text-text-mute">逛逛</h2>
+      <div class="flex flex-wrap gap-2">
+        <a class="tag-chip"><span>📘</span><span>学习</span><span class="text-text-faint ml-1">22</span></a>
+        <a class="tag-chip"><span>💼</span><span>工作</span><span class="text-text-faint ml-1">18</span></a>
+        <a class="tag-chip"><span>🌱</span><span>生活</span><span class="text-text-faint ml-1">8</span></a>
+        <a class="tag-chip"><span>📚</span><span>读书</span><span class="text-text-faint ml-1">12</span></a>
+        <a class="tag-chip"><span>🎬</span><span>影音</span><span class="text-text-faint ml-1">5</span></a>
+        <a class="tag-chip"><span>✈️</span><span>旅行</span><span class="text-text-faint ml-1">3</span></a>
+      </div>
+    </section>
+
+    <!-- 热力图 + 时间线 并列 -->
+    <section class="py-12">
+      <div class="grid grid-cols-[1.4fr_1fr] gap-14 items-start">
+        <div>
+          <h2 class="text-[22px] font-bold tracking-[-0.01em] mb-[18px]">更早的活动</h2>
+          <div id="actB"></div>
+        </div>
+        <div>
+          <h2 class="text-[18px] font-bold tracking-[-0.01em] mb-[18px] text-text-mute">写作热力</h2>
+          <div id="heatB"></div>
+          <div class="mt-3 flex items-center gap-1 text-[11px] text-text-faint justify-end">
+            <span>少</span><span class="heat-cell heat-0" style="width:10px;height:10px"></span><span class="heat-cell heat-1" style="width:10px;height:10px"></span><span class="heat-cell heat-2" style="width:10px;height:10px"></span><span class="heat-cell heat-3" style="width:10px;height:10px"></span><span>多</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ============================================== -->
+<!-- Option C · Notion 卡片式 -->
+<!-- ============================================== -->
+<div class="option" data-opt="C">
+  <div id="hdrC"></div>
+  <main class="max-w-[1100px] mx-auto px-8">
+    <div id="heroC"></div>
+
+    <!-- 卡片矩阵 -->
+    <section class="py-10 grid grid-cols-3 gap-5 auto-rows-auto">
+      <!-- 大卡：最新文章 占 2 列 -->
+      <a href="#" class="col-span-2 group border border-border rounded-2xl p-6 hover:shadow-[0_20px_50px_-25px_rgba(0,0,0,.2)] transition">
+        <div class="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-accent font-semibold mb-3">
+          <span class="w-2 h-2 rounded-full bg-accent inline-block"></span>
+          <span>最新</span>
+        </div>
+        <h3 class="text-[22px] font-extrabold tracking-[-0.02em] leading-[1.25] mb-3 group-hover:text-accent transition">
+          用 unified 写一个自动编号的 rehype 插件
+        </h3>
+        <p class="text-[14px] text-text-mute leading-[1.65] mb-4">
+          从零搭建 unified 处理管道，自定义 rehype 插件，给 markdown 标题自动加 1./1.1./1.1.1. 编号⋯⋯
+        </p>
+        <div class="text-[12px] text-text-faint">06-04 · AI Skills · 4 分钟</div>
+      </a>
+
+      <!-- 本月节奏 -->
+      <div class="border border-border rounded-2xl p-5 bg-gradient-to-br from-violet-50 to-pink-50">
+        <div class="text-[11px] uppercase tracking-[0.14em] text-text-faint font-semibold mb-2">本月节奏</div>
+        <div class="text-[34px] font-extrabold tracking-tight">6<span class="text-[15px] font-normal text-text-mute ml-1">篇</span></div>
+        <div class="text-[12px] text-emerald-600 mt-1">↑ 比上月 +2</div>
+        <div class="mt-3 flex gap-1">
+          <div class="h-1.5 flex-1 bg-violet-300 rounded-full"></div>
+          <div class="h-1.5 flex-1 bg-violet-300 rounded-full"></div>
+          <div class="h-1.5 flex-1 bg-violet-300 rounded-full"></div>
+          <div class="h-1.5 flex-1 bg-violet-200 rounded-full"></div>
+          <div class="h-1.5 flex-1 bg-violet-100 rounded-full"></div>
+          <div class="h-1.5 flex-1 bg-violet-100 rounded-full"></div>
+        </div>
+      </div>
+
+      <!-- 热力图卡 占 2 列 -->
+      <div class="col-span-2 border border-border rounded-2xl p-6">
+        <div class="flex items-baseline justify-between mb-4">
+          <h3 class="text-[15px] font-semibold">写作热力</h3>
+          <span class="text-[11px] text-text-faint">近 26 周</span>
+        </div>
+        <div id="heatC"></div>
+      </div>
+
+      <!-- 连续天数 -->
+      <div class="border border-border rounded-2xl p-5">
+        <div class="text-[11px] uppercase tracking-[0.14em] text-text-faint font-semibold mb-2">连续写作</div>
+        <div class="text-[34px] font-extrabold tracking-tight">12<span class="text-[15px] font-normal text-text-mute ml-1">天</span></div>
+        <div class="text-[12px] text-text-faint mt-1">🔥 历史最长 28 天</div>
+      </div>
+
+      <!-- 标签云占整行 -->
+      <div class="col-span-3 border border-border rounded-2xl p-6">
+        <h3 class="text-[15px] font-semibold mb-4">按标签浏览</h3>
+        <div class="flex flex-wrap gap-2">
+          <a class="tag-chip"><span>📘</span><span>学习</span><span class="text-text-faint ml-1">22</span></a>
+          <a class="tag-chip"><span>💼</span><span>工作</span><span class="text-text-faint ml-1">18</span></a>
+          <a class="tag-chip"><span>🌱</span><span>生活</span><span class="text-text-faint ml-1">8</span></a>
+          <a class="tag-chip"><span>📚</span><span>读书</span><span class="text-text-faint ml-1">12</span></a>
+          <a class="tag-chip"><span>🎬</span><span>影音</span><span class="text-text-faint ml-1">5</span></a>
+        </div>
+      </div>
+
+      <!-- 最近活动 占整行 -->
+      <div class="col-span-3 border border-border rounded-2xl p-6">
+        <div class="flex items-baseline justify-between mb-4">
+          <h3 class="text-[15px] font-semibold">最近活动</h3>
+          <a href="#" class="text-[12px] text-accent hover:underline">查看全部 →</a>
+        </div>
+        <div id="actC"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  function inject(idHdr, idHero) {
+    document.getElementById(idHdr).innerHTML = document.getElementById("tpl-header").innerHTML;
+    document.getElementById(idHero).innerHTML = document.getElementById("tpl-hero").innerHTML;
+  }
+  inject("hdrA", "heroA");
+  inject("hdrB", "heroB");
+  inject("hdrC", "heroC");
+
+  document.getElementById("actA").innerHTML = activityList(8);
+  document.getElementById("actB").innerHTML = activityList(6);
+  document.getElementById("actC").innerHTML = activityList(8);
+  document.getElementById("heatA").innerHTML = heatGrid(52, 12, 3);
+  document.getElementById("heatB").innerHTML = heatGrid(20, 12, 3);
+  document.getElementById("heatC").innerHTML = heatGrid(26, 14, 3);
+
+  document.querySelectorAll(".switcher button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const opt = btn.dataset.opt;
+      document.querySelectorAll(".switcher button").forEach(b => b.classList.toggle("active", b.dataset.opt === opt));
+      document.querySelectorAll(".option").forEach(o => o.classList.toggle("active", o.dataset.opt === opt));
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,88 @@
+---
+import HomeLayout from "~/layouts/HomeLayout.astro";
+import { readFile } from "node:fs/promises";
+import { loadConfig } from "~/lib/config";
+import type { PapyrusConfig, Article } from "~/lib/types";
+
+export async function getStaticPaths() {
+  const config = await loadConfig();
+  const cache = JSON.parse(await readFile(".cache/articles.json", "utf-8")) as {
+    config: PapyrusConfig;
+    articles: Article[];
+  };
+  const tagEntries = Object.entries(config.tags ?? {});
+  return tagEntries.map(([slug, tag]) => ({
+    params: { slug },
+    props: { tagSlug: slug, tag, config, articles: cache.articles },
+  }));
+}
+
+const { tagSlug, tag, config, articles } = Astro.props;
+
+const repos = config.repos.filter((r) => (r.tags ?? []).includes(tagSlug));
+
+const tiles = repos.map((r) => ({
+  repo: r,
+  articleCount: articles.filter((a) => a.repo === r.slug).length,
+}));
+
+const totalArticles = tiles.reduce((s, t) => s + t.articleCount, 0);
+
+// 描述：优先用 config.tags[slug].description，支持 {count} / {title} 占位符；
+// 缺省时回退到默认句式。
+const description = (tag.description ?? `{count} 个笔记本里关于「{title}」的所有写作，按笔记本聚合。`)
+  .replace(/\{count\}/g, String(tiles.length))
+  .replace(/\{title\}/g, tag.title);
+---
+<HomeLayout title={`${tag.title} · ${config.site.name}`} description={`「${tag.title}」标签下的笔记本`}>
+  <section class="pt-2 pb-8 border-b border-border">
+    <div class="grid grid-cols-[1fr_auto] gap-10 items-end">
+      <div>
+        <div class="text-[12px] tracking-[0.18em] uppercase text-accent font-semibold mb-3">
+          标签 · TAG
+        </div>
+        <h1 class="font-extrabold tracking-[-0.025em] leading-[1.05] text-[48px] mb-3 text-text">
+          {tag.icon && <span class="mr-2">{tag.icon}</span>}{tag.title}
+        </h1>
+        <p class="text-[14px] text-text-mute">{description}</p>
+      </div>
+      <div class="text-right text-[13px]">
+        <div class="text-text-faint">共</div>
+        <div class="text-[32px] font-extrabold tabular-nums leading-none text-text">
+          {totalArticles} <span class="text-[14px] font-medium text-text-mute">篇</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {tiles.length > 0 && (
+    <section class="pt-7 pb-2">
+      <div class="grid gap-3.5 grid-cols-[repeat(auto-fill,minmax(240px,1fr))]">
+        {tiles.map(({ repo, articleCount }) => (
+          <a
+            href={`/${repo.slug}`}
+            class="repo-tile relative overflow-hidden flex flex-col gap-2.5 px-[18px] pt-[18px] pb-4 border border-border rounded-[14px] bg-bg transition-all hover:border-text-faint hover:shadow-[0_10px_24px_-14px_rgba(15,23,42,.2)] hover:-translate-y-[1px]"
+          >
+            <div class="flex items-center gap-2.5">
+              <span class="text-[22px] leading-none">{repo.icon}</span>
+              <span class="text-[15px] font-semibold text-text flex-1 truncate">{repo.title}</span>
+              <span class="text-[12px] text-text-faint tabular-nums bg-bg-elev px-2 py-0.5 rounded-full">{articleCount}</span>
+            </div>
+            <p class="text-[12.5px] text-text-mute leading-[1.55] line-clamp-2 m-0">{repo.description}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+</HomeLayout>
+
+<style>
+  .repo-tile::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(120px 80px at 100% 0%, rgba(37, 99, 235, 0.06), transparent 70%);
+  }
+</style>

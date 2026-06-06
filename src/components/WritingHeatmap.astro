@@ -1,0 +1,87 @@
+---
+import { buildHeatmap, type HeatCell } from "~/lib/format";
+import type { Article } from "~/lib/types";
+
+interface Props {
+  articles: Article[];
+  weeks?: number;
+  cellSize?: number;     // px
+  gap?: number;          // px
+  variant?: "full" | "compact";   // compact: 不渲染标题栏，只画图（适合嵌入侧栏）
+}
+const {
+  articles,
+  weeks = 26,
+  cellSize = 12,
+  gap = 3,
+  variant = "full",
+} = Astro.props;
+
+const cells = buildHeatmap(articles, weeks);
+
+function level(n: number): 0 | 1 | 2 | 3 {
+  if (n === 0) return 0;
+  if (n === 1) return 1;
+  if (n === 2) return 2;
+  return 3;
+}
+
+const monthLabels: { col: number; label: string }[] = [];
+let lastMonth = -1;
+for (let w = 0; w < weeks; w++) {
+  const firstCell = cells[w * 7];
+  const m = new Date(firstCell.date).getUTCMonth();
+  if (m !== lastMonth) {
+    monthLabels.push({ col: w, label: `${m + 1}月` });
+    lastMonth = m;
+  }
+}
+
+const lvlClass = [
+  "bg-[var(--c-border)]",
+  "bg-[#bfdbfe] dark:bg-[#1e40af]",
+  "bg-[#60a5fa] dark:bg-[#3b82f6]",
+  "bg-[#2563eb] dark:bg-[#93c5fd]",
+];
+---
+<section class="h-full">
+  {variant === "full" && (
+    <div class="flex items-baseline justify-between mb-[18px]">
+      <h2 class="text-[22px] tracking-[-0.01em] m-0 font-bold">写作热力图</h2>
+      <span class="text-[12px] text-text-faint">近 {weeks} 周</span>
+    </div>
+  )}
+
+  <div class="w-fit max-w-full overflow-x-auto">
+    <div
+      class="grid"
+      style={`grid-template-columns: repeat(${weeks}, ${cellSize}px); grid-template-rows: repeat(7, ${cellSize}px); grid-auto-flow: column; gap: ${gap}px;`}
+    >
+      {cells.map((c: HeatCell) => (
+        <div
+          class={`rounded-[2px] ${lvlClass[level(c.count)]}`}
+          title={`${c.date} · ${c.count} 篇`}
+        />
+      ))}
+    </div>
+
+    {monthLabels.length > 0 && (
+      <div
+        class="mt-2 grid text-[11px] text-text-faint"
+        style={`grid-template-columns: repeat(${weeks}, ${cellSize}px); gap: ${gap}px;`}
+      >
+        {monthLabels.map((m) => (
+          <span style={`grid-column: ${m.col + 1};`}>{m.label}</span>
+        ))}
+      </div>
+    )}
+
+    <div class="mt-3 flex items-center gap-[6px] text-[11px] text-text-faint justify-end">
+      <span>少</span>
+      {[0, 1, 2, 3].map((l) => (
+        <span class={`inline-block w-[10px] h-[10px] rounded-[2px] ${lvlClass[l]}`} />
+      ))}
+      <span>多</span>
+    </div>
+  </div>
+</section>

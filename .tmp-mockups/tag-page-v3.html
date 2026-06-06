@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<title>Papyrus · Tag 页面 V3</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --c-bg: #ffffff;
+    --c-bg-elev: #f7f8fa;
+    --c-bg-soft: #faf9f6;
+    --c-border: #e6e8eb;
+    --c-border-soft: #eef0f3;
+    --c-text: #1f2328;
+    --c-text-mute: #5b6470;
+    --c-text-faint: #8b95a3;
+    --c-accent: #2563eb;
+    --c-accent-soft: #eef4ff;
+  }
+  body { background: var(--c-bg); color: var(--c-text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif; }
+  .border-border { border-color: var(--c-border); }
+  .border-border-soft { border-color: var(--c-border-soft); }
+  .text-text { color: var(--c-text); }
+  .text-text-mute { color: var(--c-text-mute); }
+  .text-text-faint { color: var(--c-text-faint); }
+  .text-accent { color: var(--c-accent); }
+  .bg-bg { background: var(--c-bg); }
+  .bg-bg-elev { background: var(--c-bg-elev); }
+  .bg-bg-soft { background: var(--c-bg-soft); }
+  .bg-accent-soft { background: var(--c-accent-soft); }
+  .switcher { position: fixed; top: 16px; left: 16px; z-index: 50; background: white; border: 1px solid var(--c-border); border-radius: 12px; padding: 8px; display: flex; gap: 6px; box-shadow: 0 10px 30px -10px rgba(0,0,0,.15); }
+  .switcher button { padding: 6px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; border: 1px solid transparent; }
+  .switcher button.active { background: #1f2328; color: white; }
+  .option { display: none; }
+  .option.active { display: block; }
+
+  /* ===== A · Editorial ===== */
+  .ed-card { display: block; padding: 22px 0; border-top: 1px solid var(--c-border-soft); transition: opacity .15s; }
+  .ed-card:first-child { border-top: 0; padding-top: 0; }
+  .ed-card:hover { opacity: 0.7; }
+
+  /* ===== B · Timeline ===== */
+  .tl-grid { display: grid; grid-template-columns: 160px 1fr; gap: 36px; }
+  .tl-axis { position: relative; }
+  .tl-axis::before { content: ""; position: absolute; left: 7px; top: 8px; bottom: 0; width: 1px; background: var(--c-border); }
+  .tl-month { position: relative; padding-left: 28px; padding-top: 14px; padding-bottom: 36px; }
+  .tl-month::before { content: ""; position: absolute; left: 3px; top: 22px; width: 9px; height: 9px; border-radius: 50%; background: var(--c-bg); border: 2px solid var(--c-text-faint); }
+  .tl-month.current::before { background: var(--c-accent); border-color: var(--c-accent); box-shadow: 0 0 0 4px var(--c-accent-soft); }
+  .tl-card { display: block; padding: 16px 18px; border: 1px solid var(--c-border); border-radius: 12px; margin-bottom: 10px; transition: all .15s; background: white; }
+  .tl-card:hover { border-color: var(--c-text-faint); transform: translateY(-1px); box-shadow: 0 6px 18px -10px rgba(15,23,42,.18); }
+
+  /* ===== C · 笔记本分组 + 目录树 ===== */
+  .rp-section { border-top: 1px solid var(--c-border); padding: 36px 0; }
+  .rp-section:first-of-type { border-top: 0; }
+  .rp-anchor-pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border: 1px solid var(--c-border); border-radius: 999px; font-size: 13px; transition: all .12s; }
+  .rp-anchor-pill:hover { border-color: var(--c-text); }
+
+  .tree { font-size: 14px; }
+  .tree-folder {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 8px; border-radius: 6px;
+    font-size: 13px; font-weight: 600; color: var(--c-text);
+    user-select: none;
+  }
+  .tree-folder .caret { color: var(--c-text-faint); font-size: 10px; width: 10px; display: inline-block; transition: transform .12s; }
+  .tree-folder .folder-icon { font-size: 13px; }
+  .tree-folder .folder-count { margin-left: auto; font-size: 11px; color: var(--c-text-faint); font-weight: 500; font-variant-numeric: tabular-nums; }
+  .tree-children {
+    margin-left: 12px;
+    padding-left: 14px;
+    border-left: 1px solid var(--c-border-soft);
+    margin-top: 2px;
+    margin-bottom: 4px;
+  }
+  .tree-file {
+    display: grid; grid-template-columns: 16px 1fr auto; gap: 12px;
+    align-items: baseline;
+    padding: 10px 10px; border-radius: 8px;
+    transition: background .12s;
+  }
+  .tree-file:hover { background: var(--c-bg-elev); }
+  .tree-file .file-icon { color: var(--c-text-faint); font-size: 12px; padding-top: 1px; }
+  .tree-file .file-name {
+    font-size: 14.5px; font-weight: 500; color: var(--c-text);
+    overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  }
+  .tree-file:hover .file-name { color: var(--c-accent); }
+  .tree-file .file-excerpt {
+    font-size: 12.5px; color: var(--c-text-faint); line-height: 1.55;
+    margin-top: 4px;
+    display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .tree-file .file-meta {
+    font-size: 11px; color: var(--c-text-faint);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<div class="switcher">
+  <button data-opt="A">A · Editorial 编辑精选</button>
+  <button data-opt="B">B · Timeline 时间轴</button>
+  <button data-opt="C" class="active">C · 按笔记本分组 + 目录</button>
+</div>
+
+<!-- 共用 header -->
+<template id="tpl-header">
+  <header class="flex items-center px-8 py-4 border-b border-border gap-6">
+    <a href="#" class="font-bold text-base tracking-tight">Papyrus<span class="text-accent">.</span></a>
+    <nav class="flex gap-1 text-sm">
+      <a href="#" class="px-3 py-1.5 rounded-md text-text-mute hover:text-text hover:bg-bg-elev">首页</a>
+      <a href="#" class="px-3 py-1.5 rounded-md text-text font-medium bg-bg-elev">📘 学习</a>
+      <a href="#" class="px-3 py-1.5 rounded-md text-text-mute hover:text-text hover:bg-bg-elev">💼 工作</a>
+      <a href="#" class="px-3 py-1.5 rounded-md text-text-mute hover:text-text hover:bg-bg-elev">🌱 生活</a>
+    </nav>
+    <div class="ml-auto flex items-center gap-3">
+      <button class="flex items-center gap-2 bg-bg-elev px-3 py-1.5 rounded-md text-xs text-text-faint w-64">
+        <span>🔍</span><span>搜索文章...</span>
+        <span class="ml-auto flex gap-1">
+          <span class="bg-bg border border-border rounded px-1.5 text-[11px]">⌘</span>
+          <span class="bg-bg border border-border rounded px-1.5 text-[11px]">K</span>
+        </span>
+      </button>
+      <button class="w-8 h-8 border border-border rounded-md text-sm">🌙</button>
+    </div>
+  </header>
+</template>
+
+<script>
+  const repos = [
+    { slug: "ai-skills", title: "个人 AI Skills", desc: "工具、流水线、AI 提效相关的写作", icon: "📘", count: 12, latest: "2 天前", grad: "from-blue-500 to-indigo-600" },
+    { slug: "reading",   title: "读书笔记",       desc: "读完一本书后整理的思考",        icon: "📚", count: 7,  latest: "1 周前", grad: "from-emerald-500 to-teal-600" },
+    { slug: "courses",   title: "课程笔记",       desc: "网课与培训的整理",              icon: "🎓", count: 3,  latest: "2 周前", grad: "from-amber-500 to-orange-600" },
+  ];
+  const articles = [
+    { date: "2026-06-04", short: "06-04", title: "用 unified 写一个自动编号的 rehype 插件", repo: "个人 AI Skills", repoSlug: "ai-skills", repoIcon: "📘", min: 4, words: 1820,
+      excerpt: "从零搭建 unified 处理管道，自定义 rehype 插件，给 markdown 标题自动加 1./1.1. 编号；同时不破坏 anchor 链接和 TOC 提取流程。" },
+    { date: "2026-05-30", short: "05-30", title: "读《思考，快与慢》第 7 章", repo: "读书笔记", repoSlug: "reading", repoIcon: "📚", min: 6, words: 2640,
+      excerpt: "系统 1 的直觉判断为什么经常出错？卡尼曼用 WYSIATI 解释——我们只用眼前的信息做决策，对缺失的信息毫无察觉。" },
+    { date: "2026-05-28", short: "05-28", title: "Astro 5 的 content layer 笔记", repo: "个人 AI Skills", repoSlug: "ai-skills", repoIcon: "📘", min: 5, words: 2100,
+      excerpt: "Content Layer 是 Astro 5 的新数据层抽象，把所有内容源统一成可查询的 collections。" },
+    { date: "2026-05-19", short: "05-19", title: "Anki 牌组重构思路", repo: "课程笔记", repoSlug: "courses", repoIcon: "🎓", min: 4, words: 1500,
+      excerpt: "原本一本课就一个 deck，太大了。试着按章节拆 sub-deck，并把 cloze 题型替换成 basic + reversed。" },
+    { date: "2026-05-12", short: "05-12", title: "Claude Code skill 系统拆解", repo: "个人 AI Skills", repoSlug: "ai-skills", repoIcon: "📘", min: 7, words: 2980,
+      excerpt: "Claude Code 的 skill 是组织 AI 行为的元能力，这篇拆解 skill 的加载机制、命名规范、以及怎么写一个新 skill。" },
+    { date: "2026-05-08", short: "05-08", title: "MIT 6.824 Lab 1 备忘", repo: "课程笔记", repoSlug: "courses", repoIcon: "🎓", min: 5, words: 2050,
+      excerpt: "实现 MapReduce coordinator 时遇到的几个坑：task 超时如何重新分配、worker crash 后的恢复策略。" },
+    { date: "2026-04-30", short: "04-30", title: "读《Designing Data-Intensive Applications》第 5 章", repo: "读书笔记", repoSlug: "reading", repoIcon: "📚", min: 8, words: 3200,
+      excerpt: "复制策略的核心权衡：同步 vs 异步、单主 vs 多主。这一章给的例子很清晰，特别是 leaderless replication 的 quorum 推导。" },
+    { date: "2026-04-22", short: "04-22", title: "重新组织个人 wiki 的层级", repo: "读书笔记", repoSlug: "reading", repoIcon: "📚", min: 3, words: 1200,
+      excerpt: "原本按主题分一级太散了，改成 GTD 风格：领域 → 项目 → 笔记，操作起来更顺。" },
+    { date: "2026-04-15", short: "04-15", title: "Tailwind v4 的 @theme 指令", repo: "个人 AI Skills", repoSlug: "ai-skills", repoIcon: "📘", min: 3, words: 1100,
+      excerpt: "Tailwind v4 把所有设计 token 收敛到 @theme 块，CSS 变量自动生成，工程上少了不少胶水代码。" },
+    { date: "2026-04-08", short: "04-08", title: "Anki 算法的 FSRS 替代方案", repo: "课程笔记", repoSlug: "courses", repoIcon: "🎓", min: 6, words: 2400,
+      excerpt: "FSRS 比 SM-2 调度更准，参数可以基于个人历史 review 数据回归拟合。" },
+  ];
+</script>
+
+<!-- ============================================== -->
+<!-- A · Editorial 编辑精选 -->
+<!-- ============================================== -->
+<div class="option" data-opt="A">
+  <div id="hdrA"></div>
+  <main class="max-w-[1100px] mx-auto px-8">
+    <!-- Hero: 柔和的纸质感，不抢戏 -->
+    <section class="pt-14 pb-12 border-b border-border">
+      <div class="grid grid-cols-[1fr_auto] gap-10 items-end">
+        <div>
+          <div class="text-[12px] tracking-[0.18em] uppercase text-accent font-semibold mb-3">标签 · TAG</div>
+          <h1 class="font-extrabold tracking-[-0.025em] leading-[1.02] text-[56px] mb-4">
+            <span class="mr-3">📘</span>学习
+          </h1>
+          <p class="text-[16px] text-text-mute leading-[1.7] max-w-[560px]">
+            汇集了 3 本笔记本里关于「学习」的所有写作 —— 工具拆解、读书摘要、课程笔记按时间倒序排列。
+          </p>
+        </div>
+        <div class="grid grid-cols-2 gap-x-10 gap-y-3 text-[13px] pb-2">
+          <div class="text-text-faint">文章总数</div><div class="font-semibold text-right tabular-nums">22</div>
+          <div class="text-text-faint">笔记本</div>  <div class="font-semibold text-right tabular-nums">3</div>
+          <div class="text-text-faint">本月新增</div><div class="font-semibold text-right tabular-nums">4</div>
+          <div class="text-text-faint">最近更新</div><div class="font-semibold text-right">2 天前</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 本期精选：1 主 + 2 副 -->
+    <section class="py-14 border-b border-border">
+      <div class="flex items-baseline justify-between mb-7">
+        <h2 class="text-[20px] font-bold tracking-[-0.01em]">本期精选</h2>
+        <span class="text-[12px] text-text-faint uppercase tracking-[0.14em]">3 篇</span>
+      </div>
+      <div class="grid grid-cols-[1.6fr_1fr] gap-10">
+        <!-- 主 -->
+        <a href="#" class="group block">
+          <div class="text-[11px] uppercase tracking-[0.14em] text-accent font-semibold mb-3">FEATURED · 06-04</div>
+          <h3 class="text-[30px] font-bold tracking-[-0.02em] leading-[1.2] mb-4 group-hover:text-accent transition" style="text-wrap: balance;">
+            用 unified 写一个自动编号的 rehype 插件
+          </h3>
+          <p class="text-[15px] text-text-mute leading-[1.75] mb-4">
+            从零搭建 unified 处理管道，自定义 rehype 插件，给 markdown 标题自动加 1./1.1. 编号；同时不破坏 anchor 链接和 TOC 提取流程。
+          </p>
+          <div class="text-[12px] text-text-faint">📘 个人 AI Skills · 4 分钟 · 1,820 字</div>
+        </a>
+        <!-- 2 副 -->
+        <div class="grid gap-7 content-start">
+          <a href="#" class="group block">
+            <div class="text-[11px] uppercase tracking-[0.14em] text-text-faint font-semibold mb-2">05-30 · 📚 读书笔记</div>
+            <h4 class="text-[17px] font-semibold leading-snug mb-2 group-hover:text-accent transition">读《思考，快与慢》第 7 章</h4>
+            <p class="text-[13px] text-text-mute leading-[1.65] line-clamp-2">系统 1 的直觉判断为什么经常出错？卡尼曼用 WYSIATI 解释——我们只用眼前的信息做决策。</p>
+          </a>
+          <a href="#" class="group block border-t border-border-soft pt-7">
+            <div class="text-[11px] uppercase tracking-[0.14em] text-text-faint font-semibold mb-2">05-28 · 📘 个人 AI Skills</div>
+            <h4 class="text-[17px] font-semibold leading-snug mb-2 group-hover:text-accent transition">Astro 5 的 content layer 笔记</h4>
+            <p class="text-[13px] text-text-mute leading-[1.65] line-clamp-2">Content Layer 是 Astro 5 的新数据层抽象，把所有内容源统一成可查询的 collections。</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 完整列表 -->
+    <section class="py-14">
+      <div class="flex items-baseline justify-between mb-6">
+        <h2 class="text-[20px] font-bold tracking-[-0.01em]">完整书架</h2>
+        <div class="flex gap-2 text-[12px]">
+          <span class="px-3 py-1 rounded-full bg-text text-bg font-medium">全部 22</span>
+          <span class="px-3 py-1 rounded-full border border-border text-text-mute hover:bg-bg-elev cursor-pointer">📘 12</span>
+          <span class="px-3 py-1 rounded-full border border-border text-text-mute hover:bg-bg-elev cursor-pointer">📚 7</span>
+          <span class="px-3 py-1 rounded-full border border-border text-text-mute hover:bg-bg-elev cursor-pointer">🎓 3</span>
+        </div>
+      </div>
+      <div id="edListA"></div>
+    </section>
+  </main>
+</div>
+
+<!-- ============================================== -->
+<!-- B · Timeline 时间轴 -->
+<!-- ============================================== -->
+<div class="option" data-opt="B">
+  <div id="hdrB"></div>
+  <main class="max-w-[1100px] mx-auto px-8">
+    <!-- Hero -->
+    <section class="pt-12 pb-10 border-b border-border">
+      <div class="text-[12px] tracking-[0.18em] uppercase text-accent font-semibold mb-3">标签 · TAG</div>
+      <div class="flex items-end gap-5 mb-4">
+        <span class="text-[60px] leading-none">📘</span>
+        <div>
+          <h1 class="font-extrabold tracking-[-0.025em] leading-none text-[48px] mb-2">学习</h1>
+          <p class="text-[14px] text-text-mute">22 篇 · 3 个笔记本 · 跨越 2026 年 4 月 – 6 月</p>
+        </div>
+      </div>
+      <!-- repo chip -->
+      <div class="mt-6 flex flex-wrap gap-2">
+        <a class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-text text-bg text-[13px] font-medium">全部 <span class="opacity-70">22</span></a>
+        <a class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border text-[13px] hover:bg-bg-elev transition">📘 个人 AI Skills <span class="text-text-faint">12</span></a>
+        <a class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border text-[13px] hover:bg-bg-elev transition">📚 读书笔记 <span class="text-text-faint">7</span></a>
+        <a class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border text-[13px] hover:bg-bg-elev transition">🎓 课程笔记 <span class="text-text-faint">3</span></a>
+      </div>
+    </section>
+
+    <!-- Timeline -->
+    <section class="py-14">
+      <div id="tlBody"></div>
+    </section>
+  </main>
+</div>
+
+<!-- ============================================== -->
+<!-- C · 按笔记本分组 + 目录树 -->
+<!-- ============================================== -->
+<div class="option active" data-opt="C">
+  <div id="hdrC"></div>
+  <main class="max-w-[1100px] mx-auto px-8">
+    <!-- Hero + 锚点导航 -->
+    <section class="pt-12 pb-8 border-b border-border">
+      <div class="grid grid-cols-[1fr_auto] gap-10 items-end">
+        <div>
+          <div class="text-[12px] tracking-[0.18em] uppercase text-accent font-semibold mb-3">标签 · TAG</div>
+          <h1 class="font-extrabold tracking-[-0.025em] leading-[1.05] text-[48px] mb-3">
+            <span class="mr-2">📘</span>学习
+          </h1>
+          <p class="text-[14px] text-text-mute">3 个笔记本里关于学习的所有写作，按笔记本聚合。</p>
+        </div>
+        <div class="text-right text-[13px]">
+          <div class="text-text-faint">共</div>
+          <div class="text-[32px] font-extrabold tabular-nums leading-none">22 <span class="text-[14px] font-medium text-text-mute">篇</span></div>
+        </div>
+      </div>
+      <!-- 锚点 pills -->
+      <div class="mt-7 flex flex-wrap gap-2">
+        <a href="#r-ai-skills" class="rp-anchor-pill"><span>📘</span><span>个人 AI Skills</span><span class="text-text-faint tabular-nums">12</span></a>
+        <a href="#r-reading"   class="rp-anchor-pill"><span>📚</span><span>读书笔记</span><span class="text-text-faint tabular-nums">7</span></a>
+        <a href="#r-courses"   class="rp-anchor-pill"><span>🎓</span><span>课程笔记</span><span class="text-text-faint tabular-nums">3</span></a>
+      </div>
+    </section>
+
+    <!-- 笔记本分组 -->
+    <section id="rpBody" class="py-2"></section>
+  </main>
+</div>
+
+<script>
+  function inject(id) { document.getElementById(id).innerHTML = document.getElementById("tpl-header").innerHTML; }
+  inject("hdrA"); inject("hdrB"); inject("hdrC");
+
+  // ===== A · Editorial 完整列表 =====
+  document.getElementById("edListA").innerHTML = articles.map(a => `
+    <a href="#" class="ed-card group grid grid-cols-[88px_1fr_140px] gap-6 items-baseline">
+      <span class="text-[12px] text-text-faint tabular-nums pt-1">${a.short}</span>
+      <div class="min-w-0">
+        <h4 class="text-[17px] font-semibold leading-snug mb-1 group-hover:text-accent transition">${a.title}</h4>
+        <p class="text-[13px] text-text-mute leading-[1.6] line-clamp-1">${a.excerpt}</p>
+      </div>
+      <div class="text-right text-[12px] text-text-faint">
+        <div>${a.repoIcon} ${a.repo}</div>
+        <div class="tabular-nums mt-0.5">${a.min} 分钟</div>
+      </div>
+    </a>
+  `).join("");
+
+  // ===== B · Timeline =====
+  const tlByMonth = {};
+  articles.forEach(a => { const m = a.date.slice(0,7); (tlByMonth[m]=tlByMonth[m]||[]).push(a); });
+  const monthKeys = Object.keys(tlByMonth);
+  document.getElementById("tlBody").innerHTML = monthKeys.map((m, idx) => {
+    const [y, mm] = m.split("-");
+    const isCurrent = idx === 0;
+    return `
+      <div class="tl-grid">
+        <div class="tl-axis">
+          <div class="tl-month ${isCurrent ? 'current' : ''}">
+            <div class="text-[11px] uppercase tracking-[0.14em] text-text-faint font-semibold">${y}</div>
+            <div class="text-[26px] font-extrabold tracking-[-0.02em] leading-none mt-1">${parseInt(mm)} 月</div>
+            <div class="text-[11px] text-text-faint mt-2">${tlByMonth[m].length} 篇</div>
+          </div>
+        </div>
+        <div class="pt-3 pb-8">
+          ${tlByMonth[m].map(a => `
+            <a href="#" class="tl-card group">
+              <div class="flex items-baseline justify-between gap-4 mb-1">
+                <h4 class="text-[16px] font-semibold leading-snug group-hover:text-accent transition">${a.title}</h4>
+                <span class="text-[11px] text-text-faint tabular-nums shrink-0">${a.short}</span>
+              </div>
+              <p class="text-[13px] text-text-mute leading-[1.6] line-clamp-1 mb-2">${a.excerpt}</p>
+              <div class="text-[11px] text-text-faint flex items-center gap-2">
+                <span>${a.repoIcon} ${a.repo}</span>
+                <span>·</span>
+                <span class="tabular-nums">${a.min} 分钟</span>
+                <span>·</span>
+                <span class="tabular-nums">${a.words.toLocaleString()} 字</span>
+              </div>
+            </a>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // ===== C · 按笔记本分组 + 目录树 =====
+  // 目录树 mock 数据（type: dir 含 children；type: file 含 date）
+  const trees = {
+    "ai-skills": [
+      { type: "dir", name: "unified-pipeline", children: [
+        { type: "file", name: "自动编号 rehype 插件", date: "06-04", min: 4, excerpt: "从零搭建 unified 处理管道，自定义 rehype 插件，给 markdown 标题自动加 1./1.1. 编号。" },
+        { type: "file", name: "rehype 链接重写策略",  date: "05-25", min: 3, excerpt: "把站内 .md 链接重写成 /repo/path 形式，同时保留外链和锚点不动。" },
+        { type: "file", name: "shiki 双色主题接入",   date: "05-10", min: 3, excerpt: "shiki defaultColor: false 输出双 CSS 变量，让代码块跟随暗色模式切换。" },
+      ]},
+      { type: "dir", name: "astro", children: [
+        { type: "file", name: "content layer 笔记",  date: "05-28", min: 5, excerpt: "Content Layer 是 Astro 5 的新数据层抽象，把所有内容源统一成可查询的 collections。" },
+        { type: "file", name: "tailwind v4 @theme",  date: "04-15", min: 3, excerpt: "Tailwind v4 把所有设计 token 收敛到 @theme 块，CSS 变量自动生成。" },
+        { type: "file", name: "islands 架构理解",    date: "04-02", min: 4, excerpt: "Astro Islands 让交互组件按需 hydrate，静态部分零 JS 体积。" },
+      ]},
+      { type: "dir", name: "claude", children: [
+        { type: "file", name: "skill 系统拆解",      date: "05-12", min: 7, excerpt: "Claude Code 的 skill 是组织 AI 行为的元能力，这篇拆解 skill 的加载机制、命名规范。" },
+        { type: "file", name: "hooks 配置实战",      date: "04-26", min: 5, excerpt: "用 PreToolUse hook 拦截危险命令，PostToolUse 自动格式化代码。" },
+        { type: "file", name: "mcp 接入笔记",        date: "04-10", min: 4, excerpt: "MCP 是模型上下文协议，扩展 Claude 与外部工具的能力。" },
+      ]},
+      { type: "file", name: "工具链对比",            date: "06-01", min: 6, excerpt: "对比 pnpm / npm / yarn 在 monorepo 下的依赖解析行为和磁盘占用。" },
+      { type: "file", name: "vite 配置心得",         date: "04-20", min: 4, excerpt: "Vite 5 的几个非默认配置：optimizeDeps、server.fs.allow、esbuild target。" },
+      { type: "file", name: "nodejs 异步陷阱",       date: "04-05", min: 5, excerpt: "promise 不 catch 会触发 unhandledRejection，AsyncLocalStorage 的上下文丢失场景。" },
+    ],
+    "reading": [
+      { type: "dir", name: "思考，快与慢", children: [
+        { type: "file", name: "第 1 章 笔记", date: "06-02", min: 5, excerpt: "系统 1 与系统 2 的对偶：直觉与反思在认知任务中的分工。" },
+        { type: "file", name: "第 7 章 笔记", date: "05-30", min: 6, excerpt: "系统 1 的直觉判断为什么经常出错？卡尼曼用 WYSIATI 解释。" },
+      ]},
+      { type: "dir", name: "DDIA", children: [
+        { type: "file", name: "第 3 章 存储引擎", date: "05-15", min: 7, excerpt: "LSM-Tree 和 B-Tree 的写放大与读放大对比，以及压缩策略的代价。" },
+        { type: "file", name: "第 5 章 复制",     date: "04-30", min: 8, excerpt: "复制策略的核心权衡：同步 vs 异步、单主 vs 多主、leaderless replication 的 quorum 推导。" },
+      ]},
+      { type: "file", name: "wiki 重构思路", date: "04-22", min: 3, excerpt: "原本按主题分一级太散了，改成 GTD 风格：领域 → 项目 → 笔记。" },
+      { type: "file", name: "阅读方法论",    date: "04-12", min: 4, excerpt: "《如何阅读一本书》里的主动阅读三个层次，对应不同密度的笔记策略。" },
+      { type: "file", name: "卡片笔记法",    date: "04-03", min: 5, excerpt: "卡片笔记法的核心是分离捕获、整理、长期存储三种笔记。" },
+    ],
+    "courses": [
+      { type: "dir", name: "MIT 6.824", children: [
+        { type: "file", name: "Lab 1 备忘", date: "05-08", min: 5, excerpt: "实现 MapReduce coordinator 时遇到的几个坑：task 超时分配、worker crash 恢复。" },
+      ]},
+      { type: "dir", name: "Anki", children: [
+        { type: "file", name: "牌组重构思路", date: "05-19", min: 4, excerpt: "原本一本课就一个 deck，太大了。试着按章节拆 sub-deck。" },
+        { type: "file", name: "FSRS 算法",    date: "04-08", min: 6, excerpt: "FSRS 比 SM-2 调度更准，参数可以基于个人历史 review 数据回归拟合。" },
+      ]},
+    ],
+  };
+
+  function countFiles(nodes) {
+    let n = 0;
+    nodes.forEach(x => { n += x.type === "file" ? 1 : countFiles(x.children || []); });
+    return n;
+  }
+  function renderTree(nodes) {
+    return nodes.map(n => {
+      if (n.type === "dir") {
+        return `
+          <div>
+            <div class="tree-folder">
+              <span class="caret">▾</span>
+              <span class="folder-icon">📁</span>
+              <span>${n.name}</span>
+              <span class="folder-count">${countFiles(n.children)} 篇</span>
+            </div>
+            <div class="tree-children">${renderTree(n.children)}</div>
+          </div>
+        `;
+      }
+      return `
+        <a href="#" class="tree-file">
+          <span class="file-icon">📄</span>
+          <div class="min-w-0">
+            <div class="file-name">${n.name}</div>
+            <div class="file-excerpt">${n.excerpt}</div>
+          </div>
+          <div class="file-meta">${n.date} · ${n.min} 分钟</div>
+        </a>
+      `;
+    }).join("");
+  }
+
+  document.getElementById("rpBody").innerHTML = repos.map(r => {
+    const tree = trees[r.slug] || [];
+    return `
+      <div class="rp-section" id="r-${r.slug}">
+        <div class="grid grid-cols-[1fr_auto] gap-4 items-baseline mb-5">
+          <div class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-gradient-to-br ${r.grad} text-white shadow-sm">${r.icon}</span>
+            <div>
+              <h2 class="text-[20px] font-bold tracking-[-0.01em] leading-tight">${r.title}</h2>
+              <p class="text-[12px] text-text-faint mt-0.5">${r.desc}</p>
+            </div>
+          </div>
+          <a href="#" class="text-[12px] text-text-faint hover:text-text">在笔记本中查看 →</a>
+        </div>
+        <div class="tree">
+          ${renderTree(tree)}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  document.querySelectorAll(".switcher button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const opt = btn.dataset.opt;
+      document.querySelectorAll(".switcher button").forEach(b => b.classList.toggle("active", b.dataset.opt === opt));
+      document.querySelectorAll(".option").forEach(o => o.classList.toggle("active", o.dataset.opt === opt));
+    });
+  });
+</script>
+
+</body>
+</html>

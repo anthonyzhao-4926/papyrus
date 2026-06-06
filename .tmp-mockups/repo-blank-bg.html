@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Papyrus · 空白背景选型</title>
+<style>
+  :root{
+    --c-bg:#ffffff; --c-bg-elev:#f7f8fa; --c-border:#e6e8eb;
+    --c-text:#1f2328; --c-text-mute:#5b6470; --c-text-faint:#8b95a3;
+    --c-accent:#2563eb;
+  }
+  html.dark{
+    --c-bg:#0b0d10; --c-bg-elev:#15181d; --c-border:#1f2937;
+    --c-text:#e5e7eb; --c-text-mute:#94a3b8; --c-text-faint:#64748b;
+    --c-accent:#60a5fa;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--c-bg);color:var(--c-text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;font-size:14px;line-height:1.5}
+  a{color:inherit;text-decoration:none}
+
+  .topbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:28px;
+    padding:14px 28px;border-bottom:1px solid var(--c-border);background:var(--c-bg)}
+  .brand{font-weight:800;font-size:18px}
+  .nav{display:flex;gap:18px;color:var(--c-text-mute);font-size:14px}
+  .spacer{flex:1}
+  .search{display:flex;align-items:center;gap:6px;border:1px solid var(--c-border);
+    border-radius:8px;padding:6px 10px;color:var(--c-text-faint);font-size:13px;min-width:220px}
+  .toggle{cursor:pointer;border:1px solid var(--c-border);border-radius:8px;padding:6px 10px;font-size:13px}
+
+  .layout{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:248px 1fr;gap:0;padding:0 28px}
+
+  aside{border-right:1px solid var(--c-border);padding:28px 16px 28px 0}
+  .tree-head{display:flex;align-items:center;justify-content:space-between;padding:0 6px;margin-bottom:10px}
+  .tree-head .label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--c-text-faint)}
+  .locate-btn{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--c-text-mute);
+    cursor:pointer;border:none;background:none;padding:3px 6px;border-radius:6px}
+  .locate-btn:hover{color:var(--c-accent);background:var(--c-bg-elev)}
+  .tree ul{list-style:none;margin:0;padding:0}
+  .tree .row{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:6px;cursor:pointer}
+  .tree .row:hover{background:var(--c-bg-elev)}
+  .tree .caret{font-size:9px;color:var(--c-text-faint);width:10px;display:inline-block}
+  .tree .dir.top{font-size:13px;font-weight:700}
+  .tree .dir.sub{font-size:12.5px;color:var(--c-text-mute);font-weight:600}
+  .tree .file{font-size:13px;color:var(--c-text-mute)}
+  .tree .file.active{color:var(--c-accent);font-weight:600;background:color-mix(in srgb,var(--c-accent) 10%,transparent)}
+  .tree .children{margin-left:13px;padding-left:8px;border-left:1px solid var(--c-border)}
+  .tree .section{margin-bottom:8px}
+
+  main{min-width:0;padding:0 0 0 40px}
+
+  /* 每个空白画布 */
+  .canvas{position:relative;height:340px;border-radius:14px;overflow:hidden;margin-bottom:22px;
+    border:1px solid var(--c-border);background:var(--c-bg-elev)}
+  .canvas .tag{position:absolute;top:12px;left:14px;z-index:5;font-size:11px;font-weight:700;
+    color:var(--c-accent);letter-spacing:.05em;text-transform:uppercase}
+  .canvas .note{position:absolute;bottom:12px;left:14px;z-index:5;font-size:12px;color:var(--c-text-faint)}
+
+  /* ---------- V1 巨型幽灵衬线字 ---------- */
+  .v1{display:flex;align-items:center;justify-content:center}
+  .v1 .ghost{font-family:Georgia,"Times New Roman",serif;font-weight:700;font-style:italic;
+    font-size:120px;letter-spacing:-2px;
+    color:transparent;-webkit-text-stroke:1.5px color-mix(in srgb,var(--c-text-faint) 45%,transparent)}
+
+  /* ---------- V2 斜向平铺水印 ---------- */
+  .v2{background-image:repeating-linear-gradient(0deg,transparent,transparent 38px,color-mix(in srgb,var(--c-border) 60%,transparent) 38px,color-mix(in srgb,var(--c-border) 60%,transparent) 39px)}
+  .v2 .wm{position:absolute;inset:-40%;transform:rotate(-24deg);
+    font-family:Georgia,serif;font-size:34px;line-height:2.4;color:color-mix(in srgb,var(--c-text-faint) 16%,transparent);
+    white-space:pre-wrap;word-break:break-word;user-select:none}
+  .v2 .center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px}
+  .v2 .center .big{font-family:Georgia,serif;font-weight:700;font-size:40px;color:var(--c-text)}
+  .v2 .center .sub{font-size:13px;color:var(--c-text-mute)}
+
+  /* ---------- V3 灰调渐变光晕 + 居中细体 ---------- */
+  .v3{background:
+      radial-gradient(120% 80% at 50% 0%, color-mix(in srgb,var(--c-border) 70%,transparent), transparent 60%),
+      radial-gradient(60% 60% at 80% 100%, color-mix(in srgb,var(--c-text-faint) 14%,transparent), transparent 70%),
+      var(--c-bg)}
+  .v3 .center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+  .v3 .center .big{font-family:Georgia,serif;font-weight:400;font-size:54px;letter-spacing:1px;color:var(--c-text-mute)}
+  .v3 .center .dotline{display:flex;align-items:center;gap:10px;color:var(--c-text-faint);font-size:12px}
+  .v3 .center .dotline::before,.v3 .center .dotline::after{content:"";width:36px;height:1px;background:var(--c-border)}
+
+  /* ---------- V4 点阵网格 + 左下大号描边字 ---------- */
+  .v4{background-image:radial-gradient(color-mix(in srgb,var(--c-text-faint) 28%,transparent) 1px,transparent 1px);
+      background-size:18px 18px}
+  .v4 .corner{position:absolute;left:24px;bottom:8px;
+    font-family:Georgia,serif;font-weight:700;font-size:96px;letter-spacing:-2px;line-height:1;
+    color:transparent;-webkit-text-stroke:1.2px color-mix(in srgb,var(--c-text-faint) 40%,transparent)}
+  .v4 .badge{position:absolute;right:24px;top:50%;transform:translateY(-50%);
+    font-family:Georgia,serif;font-size:22px;color:var(--c-text-mute)}
+
+  .label-row{display:flex;align-items:center;gap:10px;margin:0 0 8px}
+  .label-row h2{font-size:13px;font-weight:700;color:var(--c-accent);text-transform:uppercase;letter-spacing:.04em;margin:0}
+  .label-row .d{font-size:12.5px;color:var(--c-text-mute)}
+  .blk{margin-bottom:30px}
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <span class="brand">Papyrus.</span>
+    <nav class="nav"><a>首页</a><a>📘 学习</a><a>💼 工作</a><a>🌱 生活</a></nav>
+    <span class="spacer"></span>
+    <span class="search">🔍 搜索文章… <span style="margin-left:auto;opacity:.6">⌘K</span></span>
+    <span class="toggle" id="themeToggle">🌗 切换主题</span>
+  </div>
+
+  <div class="layout">
+    <aside>
+      <div class="tree-head">
+        <span class="label">目录</span>
+        <button class="locate-btn" title="展开并滚动到当前文章">⌖ 定位</button>
+      </div>
+      <div class="tree">
+        <ul>
+          <li class="section">
+            <div class="row"><span class="caret">▼</span><span class="dir top">xin-draw-style-pastel-sketc…</span></div>
+            <ul class="children">
+              <li>
+                <div class="row"><span class="caret">▼</span><span class="dir sub">assets</span></div>
+                <ul class="children">
+                  <li>
+                    <div class="row"><span class="caret">▼</span><span class="dir sub">samples</span></div>
+                    <ul class="children">
+                      <li><div class="row"><span class="caret" style="opacity:0">·</span><span class="file">README</span></div></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <div class="row"><span class="caret">▼</span><span class="dir sub">references</span></div>
+                <ul class="children">
+                  <li><div class="row"><span class="caret" style="opacity:0">·</span><span class="file active">palette</span></div></li>
+                  <li><div class="row"><span class="caret" style="opacity:0">·</span><span class="file">style-reference</span></div></li>
+                </ul>
+              </li>
+              <li><div class="row"><span class="caret" style="opacity:0">·</span><span class="file">SKILL</span></div></li>
+            </ul>
+          </li>
+          <li class="section">
+            <div class="row"><span class="caret">▼</span><span class="dir top">xin-git-commit-flow</span></div>
+            <ul class="children">
+              <li><div class="row"><span class="caret" style="opacity:0">·</span><span class="file">SKILL</span></div></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <main>
+      <div class="blk">
+        <div class="label-row"><h2>背景 V1 · 巨型描边衬线字</h2><span class="d">极简，居中一个透明描边 Papyrus，最克制。</span></div>
+        <div class="canvas v1"><span class="tag">空白态</span><span class="ghost">Papyrus</span><span class="note">选择左侧文章开始阅读</span></div>
+      </div>
+
+      <div class="blk">
+        <div class="label-row"><h2>背景 V2 · 斜向平铺水印</h2><span class="d">极淡的重复字铺底 + 横线纸纹，中间一个实体标题，像稿纸。</span></div>
+        <div class="canvas v2">
+          <span class="tag">空白态</span>
+          <div class="wm">Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus Papyrus</div>
+          <div class="center"><div class="big">Papyrus</div><div class="sub">从左侧选择一篇笔记</div></div>
+        </div>
+      </div>
+
+      <div class="blk">
+        <div class="label-row"><h2>背景 V3 · 灰调渐变光晕</h2><span class="d">柔和的灰色径向光晕打底，居中细衬线字 + 分隔线，最有「氛围感」。</span></div>
+        <div class="canvas v3">
+          <span class="tag">空白态</span>
+          <div class="center"><div class="big">Papyrus</div><div class="dotline">选择左侧文章开始阅读</div></div>
+        </div>
+      </div>
+
+      <div class="blk">
+        <div class="label-row"><h2>背景 V4 · 点阵网格 + 角落描边字</h2><span class="d">点阵铺底，左下角一个大号描边 Papyrus 切边，最有设计感、偏工业风。</span></div>
+        <div class="canvas v4">
+          <span class="tag">空白态</span>
+          <span class="badge">选择一篇笔记 →</span>
+          <span class="corner">Papyrus</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+<script>
+  document.getElementById('themeToggle').onclick = () => document.documentElement.classList.toggle('dark');
+</script>
+</body>
+</html>

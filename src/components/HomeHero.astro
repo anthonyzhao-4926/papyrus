@@ -1,0 +1,51 @@
+---
+import { getIsoWeek } from "~/lib/format";
+import type { SiteConfig } from "~/lib/types";
+
+interface Props {
+  site: SiteConfig;
+  totalArticles: number;
+  totalRepos: number;
+  latestAgo: string | null;
+}
+const { site, totalArticles, totalRepos, latestAgo } = Astro.props;
+const now = new Date();
+const eyebrow = site.heroEyebrow ?? `${now.getUTCFullYear()} · 第 ${getIsoWeek(now)} 周`;
+const titleLine1 = site.heroTitle ?? "把零散的想法";
+const titleLine2 = site.heroHighlight ?? "沉淀成可以回看的东西";
+---
+<section class="grid grid-cols-[1.4fr_1fr] gap-14 items-end pb-14 pt-4 border-b border-border">
+  <div>
+    <div class="text-[12px] tracking-[0.18em] uppercase text-accent font-semibold mb-[14px]">
+      {eyebrow}
+    </div>
+    <h1
+      class="font-extrabold tracking-[-0.02em] leading-[1.1] text-[52px] mb-[18px]"
+      style="text-wrap: balance;"
+    >
+      {titleLine1}<br />
+      <em class="not-italic bg-clip-text text-transparent bg-[linear-gradient(120deg,var(--c-accent)_30%,#7c3aed_80%)] dark:bg-[linear-gradient(120deg,#60a5fa_30%,#a78bfa_80%)]">
+        {titleLine2}
+      </em>
+    </h1>
+    <p class="text-[17px] leading-[1.65] text-text-mute max-w-[460px] m-0">
+      {site.description}
+    </p>
+  </div>
+  <div class="border-l border-border pl-7 grid gap-4">
+    <div class="flex justify-between text-[13px]">
+      <span class="text-text-faint">文章总数</span>
+      <span class="font-semibold">{totalArticles} 篇</span>
+    </div>
+    <div class="flex justify-between text-[13px]">
+      <span class="text-text-faint">笔记本</span>
+      <span class="font-semibold">{totalRepos} 个</span>
+    </div>
+    {latestAgo && (
+      <div class="flex justify-between text-[13px]">
+        <span class="text-text-faint">最近更新</span>
+        <span class="font-semibold">{latestAgo}</span>
+      </div>
+    )}
+  </div>
+</section>

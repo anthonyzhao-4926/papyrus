@@ -24,8 +24,10 @@
   let pagefind: any = null;
   async function ensurePagefind() {
     if (!pagefind) {
+      // 路径用表达式拼接，避免 Vite 在 dev 模式静态解析（pagefind.js 仅在 build 后生成）
+      const url = `${window.location.origin}/pagefind/pagefind.js`;
       // @ts-ignore
-      pagefind = await import(/* @vite-ignore */ "/pagefind/pagefind.js");
+      pagefind = await import(/* @vite-ignore */ url);
       pagefind.options({ excerptLength: 30 });
       await pagefind.init();
     }

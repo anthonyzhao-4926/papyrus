@@ -53,6 +53,56 @@ function extractToc() {
   };
 }
 
+// 在 shiki 渲染后，把每个 <pre> 包一层 <div class="code-block">，
+// 并在前面插入一个 <button class="copy-btn"> 兄弟节点。
+// 原始代码字符串 base64 编码后写到 button 的 data-copy-source 上，
+// 客户端 JS 解码后写剪贴板。
+function withCopyButton() {
+  return (tree: any) => {
+    visit(tree, "element", (node: any, index: number | undefined, parent: any) => {
+      if (node.tagName !== "pre" || index === undefined || !parent) return;
+      const cls = parent.properties?.className;
+      if (parent.tagName === "div" && Array.isArray(cls) && cls.includes("code-block")) {
+        return;
+      }
+      const code = collectText(node);
+      const b64 = Buffer.from(code, "utf-8").toString("base64");
+      const button = {
+        type: "element",
+        tagName: "button",
+        properties: {
+          type: "button",
+          className: ["copy-btn"],
+          "data-copy-source": b64,
+          "aria-label": "复制代码",
+        },
+        children: [
+          {
+            type: "element",
+            tagName: "span",
+            properties: { className: ["copy-icon", "copy-icon-copy"] },
+            children: [{ type: "text", value: "📋" }],
+          },
+          {
+            type: "element",
+            tagName: "span",
+            properties: { className: ["copy-icon", "copy-icon-done"] },
+            children: [{ type: "text", value: "✓" }],
+          },
+        ],
+      };
+      const wrapper = {
+        type: "element",
+        tagName: "div",
+        properties: { className: ["code-block"] },
+        children: [button, node],
+      };
+      parent.children[index] = wrapper;
+      return ["skip", index + 1];
+    });
+  };
+}
+
 function resolveRelative(base: string[], rel: string): string[] {
   const segs = [...base];
   for (const part of rel.split("/")) {
@@ -105,6 +155,7 @@ export async function renderMarkdown(
       themes: { light: "github-light", dark: "github-dark" },
       defaultColor: false,
     })
+    .use(withCopyButton)
     .use(rehypeStringify, { allowDangerousHtml: true })
     .process(md);
 

@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<title>Papyrus · 首页布局选择 V2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --c-bg: #ffffff;
+    --c-bg-elev: #f7f8fa;
+    --c-border: #e6e8eb;
+    --c-text: #1f2328;
+    --c-text-mute: #5b6470;
+    --c-text-faint: #8b95a3;
+    --c-accent: #2563eb;
+  }
+  body { background: var(--c-bg); color: var(--c-text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif; }
+  .border-border { border-color: var(--c-border); }
+  .text-text { color: var(--c-text); }
+  .text-text-mute { color: var(--c-text-mute); }
+  .text-text-faint { color: var(--c-text-faint); }
+  .text-accent { color: var(--c-accent); }
+  .bg-bg { background: var(--c-bg); }
+  .bg-bg-elev { background: var(--c-bg-elev); }
+  .switcher { position: fixed; top: 16px; left: 16px; z-index: 50; background: white; border: 1px solid var(--c-border); border-radius: 12px; padding: 8px; display: flex; gap: 6px; box-shadow: 0 10px 30px -10px rgba(0,0,0,.15); }
+  .switcher button { padding: 6px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; border: 1px solid transparent; }
+  .switcher button.active { background: #1f2328; color: white; }
+  .option { display: none; }
+  .option.active { display: block; }
+  .heat-cell { width: 12px; height: 12px; border-radius: 2px; }
+  .heat-0 { background: var(--c-border); }
+  .heat-1 { background: #c7d2fe; }
+  .heat-2 { background: #818cf8; }
+  .heat-3 { background: #4f46e5; }
+</style>
+</head>
+<body>
+
+<div class="switcher">
+  <button data-opt="1" class="active">Option 1 · 横向并列</button>
+  <button data-opt="2">Option 2 · 热力图横通栏</button>
+  <button data-opt="3">Option 3 · 杂志式三列</button>
+</div>
+
+<!-- ========================================================= -->
+<!-- 共用：带 Tab 的 Header（三套都用同一个 header） -->
+<!-- ========================================================= -->
+<template id="tpl-header">
+  <header class="flex items-center px-8 py-4 border-b border-border gap-6">
+    <a href="#" class="font-bold text-base tracking-tight">
+      Papyrus<span class="text-accent">.</span>
+    </a>
+    <nav class="flex gap-1 text-sm">
+      <a href="#" class="px-3 py-1.5 rounded-md text-text font-medium bg-bg-elev">首页</a>
+      <a href="#" class="px-3 py-1.5 rounded-md text-text-mute hover:text-text hover:bg-bg-elev">📘 学习</a>
+      <a href="#" class="px-3 py-1.5 rounded-md text-text-mute hover:text-text hover:bg-bg-elev">💼 工作</a>
+      <a href="#" class="px-3 py-1.5 rounded-md text-text-mute hover:text-text hover:bg-bg-elev">🌱 生活</a>
+    </nav>
+    <div class="ml-auto flex items-center gap-3">
+      <button class="flex items-center gap-2 bg-bg-elev px-3 py-1.5 rounded-md text-xs text-text-faint w-64">
+        <span>🔍</span>
+        <span>搜索文章...</span>
+        <span class="ml-auto flex gap-1">
+          <span class="bg-bg border border-border rounded px-1.5 text-[11px]">⌘</span>
+          <span class="bg-bg border border-border rounded px-1.5 text-[11px]">K</span>
+        </span>
+      </button>
+      <button class="w-8 h-8 border border-border rounded-md text-sm">🌙</button>
+    </div>
+  </header>
+</template>
+
+<!-- 共用：Hero -->
+<template id="tpl-hero">
+  <section class="grid grid-cols-[1.4fr_1fr] gap-14 items-end pb-14 pt-4 border-b border-border">
+    <div>
+      <div class="text-[12px] tracking-[0.18em] uppercase text-accent font-semibold mb-[14px]">
+        2026 · 第 23 周
+      </div>
+      <h1 class="font-extrabold tracking-[-0.02em] leading-[1.05] text-[56px] mb-[18px]">
+        把零散的想法<br />
+        <em class="not-italic bg-clip-text text-transparent" style="background-image: linear-gradient(120deg, #2563eb 30%, #7c3aed 80%);">
+          沉淀成可以回看的东西。
+        </em>
+      </h1>
+      <p class="text-[17px] leading-[1.65] text-text-mute max-w-[460px] m-0">
+        我把笔记都搬到这里了
+      </p>
+    </div>
+    <div class="border-l border-border pl-7 grid gap-4">
+      <div class="flex justify-between text-[13px]"><span class="text-text-faint">文章总数</span><span class="font-semibold">48 篇</span></div>
+      <div class="flex justify-between text-[13px]"><span class="text-text-faint">笔记本</span><span class="font-semibold">4 个</span></div>
+      <div class="flex justify-between text-[13px]"><span class="text-text-faint">最近更新</span><span class="font-semibold">2 天前</span></div>
+      <div class="flex justify-between text-[13px]"><span class="text-text-faint">本月新增</span><span class="font-semibold">6 篇</span></div>
+    </div>
+  </section>
+</template>
+
+<!-- 共用：活动行（生成函数） -->
+<script>
+  const sampleArticles = [
+    ["06-04", "用 unified 写一个自动编号的 rehype 插件", "AI Skills"],
+    ["06-02", "Cloudflare Tunnel 替代内网穿透", "工作笔记"],
+    ["05-30", "读《思考，快与慢》第 7 章", "读书"],
+    ["05-28", "Astro 5 的 content layer 笔记", "AI Skills"],
+    ["05-26", "周复盘：把模糊任务先拆细", "生活"],
+    ["05-22", "Tailwind v4 的 @theme inline", "工作笔记"],
+    ["05-19", "Anki 牌组重构思路", "学习"],
+    ["05-15", "把 dotfiles 拆成 stow 单元", "工作笔记"],
+  ];
+  function activityRow(a) {
+    return `<div class="grid grid-cols-[58px_1fr_auto] gap-4 items-baseline py-[12px] text-[14px] border-t border-border first:border-t-0">
+      <span class="text-[12px] text-text-faint tabular-nums">${a[0]}</span>
+      <a href="#" class="text-text hover:text-accent truncate" title="${a[1]}">${a[1]}</a>
+      <span class="text-[11px] text-text-mute border border-border rounded-full px-2 py-[2px] whitespace-nowrap">${a[2]}</span>
+    </div>`;
+  }
+  function activityList(n=8) {
+    return sampleArticles.slice(0, n).map(activityRow).join("");
+  }
+  function heatGrid(weeks=26) {
+    const cells = [];
+    for (let i = 0; i < weeks * 7; i++) {
+      const r = Math.random();
+      const cls = r < 0.7 ? "heat-0" : r < 0.85 ? "heat-1" : r < 0.95 ? "heat-2" : "heat-3";
+      cells.push(`<div class="heat-cell ${cls}"></div>`);
+    }
+    return `<div class="grid" style="grid-template-columns: repeat(${weeks}, 12px); grid-template-rows: repeat(7, 12px); grid-auto-flow: column; gap: 3px;">${cells.join("")}</div>`;
+  }
+</script>
+
+<!-- ========================================================= -->
+<!-- Option 1: 横向并列 -->
+<!-- ========================================================= -->
+<div class="option active" data-opt="1">
+  <div id="hdr1"></div>
+  <main class="max-w-[1100px] mx-auto px-8">
+    <div id="hero1"></div>
+
+    <section class="py-12 border-b border-border">
+      <div class="grid grid-cols-[1fr_auto] gap-12 items-start">
+        <div class="min-w-0">
+          <div class="flex items-baseline justify-between mb-[18px]">
+            <h2 class="text-[22px] tracking-[-0.01em] m-0 font-bold">最近活动</h2>
+          </div>
+          <div id="act1"></div>
+        </div>
+        <div>
+          <div class="flex items-baseline justify-between mb-[18px]">
+            <h2 class="text-[22px] tracking-[-0.01em] m-0 font-bold">写作热力图</h2>
+            <span class="ml-3 text-[12px] text-text-faint">近 26 周</span>
+          </div>
+          <div id="heat1"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="py-12 text-center text-text-faint text-sm">— 这是首页底部 —</div>
+  </main>
+</div>
+
+<!-- ========================================================= -->
+<!-- Option 2: 热力图横通栏 + 最近活动在下 -->
+<!-- ========================================================= -->
+<div class="option" data-opt="2">
+  <div id="hdr2"></div>
+  <main class="max-w-[1100px] mx-auto px-8">
+    <div id="hero2"></div>
+
+    <section class="py-10 border-b border-border">
+      <div class="flex items-baseline justify-between mb-[16px]">
+        <h2 class="text-[18px] tracking-[-0.01em] m-0 font-bold text-text-mute">写作热力图</h2>
+        <span class="text-[12px] text-text-faint">近 52 周</span>
+      </div>
+      <div id="heat2" class="overflow-x-auto"></div>
+    </section>
+
+    <section class="py-12 border-b border-border">
+      <div class="flex items-baseline justify-between mb-[18px]">
+        <h2 class="text-[22px] tracking-[-0.01em] m-0 font-bold">最近活动</h2>
+      </div>
+      <div id="act2"></div>
+    </section>
+
+    <div class="py-12 text-center text-text-faint text-sm">— 这是首页底部 —</div>
+  </main>
+</div>
+
+<!-- ========================================================= -->
+<!-- Option 3: 杂志式 — 主活动 + 侧栏（热力图 + 数据小卡） -->
+<!-- ========================================================= -->
+<div class="option" data-opt="3">
+  <div id="hdr3"></div>
+  <main class="max-w-[1100px] mx-auto px-8">
+    <div id="hero3"></div>
+
+    <section class="py-12 border-b border-border">
+      <div class="grid grid-cols-[1fr_280px] gap-14 items-start">
+        <div class="min-w-0">
+          <div class="flex items-baseline justify-between mb-[18px]">
+            <h2 class="text-[22px] tracking-[-0.01em] m-0 font-bold">最近活动</h2>
+          </div>
+          <div id="act3"></div>
+        </div>
+        <aside class="grid gap-6">
+          <div>
+            <div class="text-[13px] font-semibold text-text-mute mb-[10px]">写作热力</div>
+            <div id="heat3"></div>
+            <div class="mt-2 flex items-center gap-[6px] text-[11px] text-text-faint justify-end">
+              <span>少</span>
+              <span class="inline-block w-[10px] h-[10px] heat-0 rounded-[2px]"></span>
+              <span class="inline-block w-[10px] h-[10px] heat-1 rounded-[2px]"></span>
+              <span class="inline-block w-[10px] h-[10px] heat-2 rounded-[2px]"></span>
+              <span class="inline-block w-[10px] h-[10px] heat-3 rounded-[2px]"></span>
+              <span>多</span>
+            </div>
+          </div>
+          <div class="border border-border rounded-xl p-4">
+            <div class="text-[12px] uppercase tracking-[0.14em] text-text-faint font-semibold mb-2">本月节奏</div>
+            <div class="text-[28px] font-extrabold tracking-tight">6 <span class="text-[14px] font-normal text-text-mute">篇</span></div>
+            <div class="text-[12px] text-text-faint mt-1">比上月 +2</div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <div class="py-12 text-center text-text-faint text-sm">— 这是首页底部 —</div>
+  </main>
+</div>
+
+<script>
+  // 注入 header + hero + 数据
+  function inject(idHdr, idHero) {
+    document.getElementById(idHdr).innerHTML = document.getElementById("tpl-header").innerHTML;
+    document.getElementById(idHero).innerHTML = document.getElementById("tpl-hero").innerHTML;
+  }
+  inject("hdr1", "hero1");
+  inject("hdr2", "hero2");
+  inject("hdr3", "hero3");
+
+  document.getElementById("act1").innerHTML = activityList(8);
+  document.getElementById("act2").innerHTML = activityList(8);
+  document.getElementById("act3").innerHTML = activityList(10);
+  document.getElementById("heat1").innerHTML = heatGrid(26);
+  document.getElementById("heat2").innerHTML = heatGrid(52);
+  document.getElementById("heat3").innerHTML = heatGrid(20);
+
+  // 切换器
+  document.querySelectorAll(".switcher button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const opt = btn.dataset.opt;
+      document.querySelectorAll(".switcher button").forEach(b => b.classList.toggle("active", b.dataset.opt === opt));
+      document.querySelectorAll(".option").forEach(o => o.classList.toggle("active", o.dataset.opt === opt));
+    });
+  });
+</script>
+
+</body>
+</html>

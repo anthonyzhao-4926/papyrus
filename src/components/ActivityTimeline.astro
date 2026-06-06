@@ -1,0 +1,32 @@
+---
+import type { Article, RepoConfig } from "~/lib/types";
+
+interface Props {
+  articles: Article[];
+  repoMap: Record<string, RepoConfig>;
+}
+const { articles, repoMap } = Astro.props;
+---
+<section class="h-full">
+  <div class="flex items-baseline justify-between mb-[18px]">
+    <h2 class="text-[22px] tracking-[-0.01em] m-0 font-bold">最近活动</h2>
+  </div>
+  <div>
+    {articles.map((a, i) => {
+      const repo = repoMap[a.repo];
+      const md = a.date.slice(5, 10);
+      const href = `/${a.repo}/${a.path.join("/")}`;
+      return (
+        <div
+          class={`grid grid-cols-[58px_1fr_auto] gap-4 items-baseline py-[12px] text-[14px] ${i > 0 ? "border-t border-border" : ""}`}
+        >
+          <span class="text-[12px] text-text-faint tabular-nums">{md}</span>
+          <a href={href} class="text-text hover:text-accent transition truncate" title={a.title}>{a.title}</a>
+          <span class="text-[11px] text-text-mute border border-border rounded-full px-2 py-[2px] whitespace-nowrap">
+            {repo?.title ?? a.repo}
+          </span>
+        </div>
+      );
+    })}
+  </div>
+</section>

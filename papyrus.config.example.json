@@ -1,0 +1,45 @@
+{
+  "site": {
+    "name": "Papyrus",
+    "description": "你好，我叫 XX，很高兴认识你",
+    "heroEyebrow": "2026 · 第 23 周",
+    "heroTitle": "把零散的想法",
+    "heroHighlight": "沉淀成可以回看的东西。"
+  },
+  "tags": {
+    "study": {
+      "title": "学习",
+      "icon": "📘",
+      "description": "我的 {count} 本学习类笔记，按笔记本聚合。"
+    },
+    "work": {
+      "title": "工作",
+      "icon": "💼"
+    },
+    "life": {
+      "title": "生活",
+      "icon": "🌱",
+      "description": "记录关于「{title}」的所有写作。"
+    }
+  },
+  "repos": [
+    {
+      "slug": "tech-notes",
+      "title": "技术笔记",
+      "description": "前后端、基础设施、日常踩坑",
+      "icon": "📘",
+      "source": "github.com/your-name/tech-notes",
+      "branch": "main",
+      "tags": ["study", "work"]
+    },
+    {
+      "slug": "reading",
+      "title": "读书笔记",
+      "description": "读过的书，摘录与笔记",
+      "icon": "📚",
+      "source": "github.com/your-name/reading",
+      "branch": "main",
+      "tags": ["life"]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 ---
 import RepoLayout from "~/layouts/RepoLayout.astro";
-import ArticleList from "~/components/ArticleList.astro";
+import BlankCanvas from "~/components/BlankCanvas.astro";
 import { readFile } from "node:fs/promises";
 import { buildTree } from "~/lib/tree";
 import type { PapyrusConfig, Article } from "~/lib/types";
@@ -19,12 +19,13 @@ export async function getStaticPaths() {
 }
 
 const { repo, articles } = Astro.props;
-const sorted = [...articles].sort((a, b) => b.date.localeCompare(a.date));
 const tree = buildTree(articles);
 ---
 <RepoLayout title={repo.title} tree={tree} repoSlug={repo.slug}>
-  <h1 class="text-2xl font-bold mb-1">{repo.title}</h1>
+  <div class="flex items-center gap-2.5 mb-1">
+    <span class="text-2xl leading-none">{repo.icon}</span>
+    <h1 class="text-2xl font-bold">{repo.title}</h1>
+  </div>
   <p class="text-text-mute mb-6">{repo.description}</p>
-  <div class="text-xs text-text-faint mb-2">{articles.length} 篇 · 按时间倒序</div>
-  <ArticleList articles={sorted} />
+  <BlankCanvas />
 </RepoLayout>

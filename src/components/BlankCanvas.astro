@@ -1,0 +1,39 @@
+---
+// 右侧空白态：灰调渐变光晕 + 居中 Papyrus 字样
+interface Props { hint?: string; }
+const { hint = "从左侧目录选择一篇笔记开始阅读" } = Astro.props;
+---
+<div class="blank-canvas">
+  <div class="blank-inner">
+    <div class="blank-word">Papyrus</div>
+    <div class="blank-hint">{hint}</div>
+  </div>
+</div>
+<style>
+  .blank-canvas {
+    position: relative;
+    min-height: calc(100vh - 16rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .blank-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+  }
+  .blank-word {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 400;
+    font-size: clamp(40px, 7vw, 60px);
+    letter-spacing: 1px;
+    color: color-mix(in srgb, var(--c-text-faint) 55%, transparent);
+    user-select: none;
+  }
+  .blank-hint {
+    font-size: 13px;
+    color: color-mix(in srgb, var(--c-text-faint) 55%, transparent);
+  }
+</style>

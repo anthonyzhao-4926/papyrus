@@ -4,11 +4,11 @@
 
 :root {
   --c-bg: #ffffff;
-  --c-bg-elev: #fafafa;
-  --c-border: #f1f5f9;
-  --c-text: #1f2937;
-  --c-text-mute: #64748b;
-  --c-text-faint: #94a3b8;
+  --c-bg-elev: #f7f8fa;
+  --c-border: #e6e8eb;
+  --c-text: #1f2328;
+  --c-text-mute: #5b6470;
+  --c-text-faint: #8b95a3;
   --c-accent: #2563eb;
   --c-code-bg: #0f172a;
 }
@@ -28,7 +28,6 @@ html {
   background: var(--c-bg);
   color: var(--c-text);
   font-family: theme("fontFamily.sans");
-  -webkit-font-smoothing: antialiased;
 }
 
 body { margin: 0; }
