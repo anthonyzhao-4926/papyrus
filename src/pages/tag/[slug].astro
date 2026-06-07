@@ -2,6 +2,7 @@
 import HomeLayout from "~/layouts/HomeLayout.astro";
 import { readFile } from "node:fs/promises";
 import { loadConfig } from "~/lib/config";
+import { isImageIcon } from "~/lib/format";
 import type { PapyrusConfig, Article } from "~/lib/types";
 
 export async function getStaticPaths() {
@@ -64,7 +65,9 @@ const description = (tag.description ?? `{count} 个笔记本里关于「{title}
             class="repo-tile relative overflow-hidden flex flex-col gap-2.5 px-[18px] pt-[18px] pb-4 border border-border rounded-[14px] bg-bg transition-all hover:border-text-faint hover:shadow-[0_10px_24px_-14px_rgba(15,23,42,.2)] hover:-translate-y-[1px]"
           >
             <div class="flex items-center gap-2.5">
-              <span class="text-[22px] leading-none">{repo.icon}</span>
+              {isImageIcon(repo.icon)
+                ? <img src={repo.icon} alt={repo.title} class="w-6 h-6 object-contain" />
+                : <span class="text-[22px] leading-none">{repo.icon}</span>}
               <span class="text-[15px] font-semibold text-text flex-1 truncate">{repo.title}</span>
               <span class="text-[12px] text-text-faint tabular-nums bg-bg-elev px-2 py-0.5 rounded-full">{articleCount}</span>
             </div>

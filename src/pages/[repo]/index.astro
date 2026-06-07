@@ -2,9 +2,12 @@
 import RepoLayout from "~/layouts/RepoLayout.astro";
 import BlankCanvas from "~/components/BlankCanvas.astro";
 import GithubLink from "~/components/GithubLink.astro";
+import Prose from "~/components/Prose.astro";
 import { readFile } from "node:fs/promises";
-import { buildTree } from "~/lib/tree";
+import { buildTree, findReadme } from "~/lib/tree";
+import { renderMarkdown } from "~/lib/markdown";
 import { repoUrl } from "~/lib/config";
+import { isImageIcon } from "~/lib/format";
 import type { PapyrusConfig, Article } from "~/lib/types";
 
 export async function getStaticPaths() {
@@ -22,13 +25,19 @@ export async function getStaticPaths() {
 
 const { repo, articles } = Astro.props;
 const tree = buildTree(articles);
+const readme = findReadme(articles);
+const readmeHtml = readme
+  ? (await renderMarkdown(readme.rawMarkdown, { repoSlug: repo.slug, currentPath: readme.path })).html
+  : null;
 ---
 <RepoLayout title={repo.title} tree={tree} repoSlug={repo.slug}>
   <div class="flex items-center gap-2.5 mb-1">
-    <span class="text-2xl leading-none">{repo.icon}</span>
+    {isImageIcon(repo.icon)
+      ? <img src={repo.icon} alt={repo.title} class="w-7 h-7 object-contain" />
+      : <span class="text-2xl leading-none">{repo.icon}</span>}
     <h1 class="text-2xl font-bold">{repo.title}</h1>
     <GithubLink href={repoUrl(repo.source)} size={20} class="ml-auto" label={`${repo.title} · GitHub 仓库`} />
   </div>
   <p class="text-text-mute mb-6">{repo.description}</p>
-  <BlankCanvas />
+  {readmeHtml ? <Prose html={readmeHtml} /> : <BlankCanvas />}
 </RepoLayout>

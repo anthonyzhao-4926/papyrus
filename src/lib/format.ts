@@ -6,6 +6,12 @@ export function formatAgo(iso: string, now: Date = new Date()): string {
   return `${Math.floor(days / 30)} 个月前更新`;
 }
 
+// icon 既可填 emoji，也可填图片路径（/xxx.svg、http(s) 链接或带图片扩展名）
+export function isImageIcon(icon?: string): boolean {
+  if (!icon) return false;
+  return icon.startsWith("/") || /^https?:\/\//.test(icon) || /\.(svg|png|jpe?g|webp|gif)$/i.test(icon);
+}
+
 export function getIsoWeek(date: Date): number {
   const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
   const dayNum = d.getUTCDay() || 7;

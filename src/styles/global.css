@@ -10,7 +10,7 @@
   --c-text-mute: #5b6470;
   --c-text-faint: #8b95a3;
   --c-accent: #2563eb;
-  --c-code-bg: #0f172a;
+  --c-code-bg: #f6f8fa;
 }
 
 .dark {
@@ -36,5 +36,5 @@ a { color: inherit; text-decoration: none; }
 /* Shiki 双主题切换 */
 html:not(.dark) .shiki span { color: var(--shiki-light) !important; }
 html.dark .shiki span { color: var(--shiki-dark) !important; }
-html:not(.dark) .shiki { background-color: var(--shiki-light-bg, var(--c-code-bg)) !important; }
+html:not(.dark) .shiki { background-color: var(--c-code-bg) !important; }
 html.dark .shiki { background-color: var(--shiki-dark-bg, var(--c-code-bg)) !important; }

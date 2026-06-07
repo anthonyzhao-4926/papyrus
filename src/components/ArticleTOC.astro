@@ -3,7 +3,7 @@ import type { TocItem } from "~/lib/types";
 interface Props { items: TocItem[]; }
 const { items } = Astro.props;
 ---
-<nav class="sticky top-6 text-xs">
+<nav class="text-xs">
   <div class="text-text-faint uppercase tracking-wider text-[11px] mb-2">On this page</div>
   <ul>
     {items.map(t => {

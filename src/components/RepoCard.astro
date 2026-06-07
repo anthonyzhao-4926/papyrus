@@ -1,5 +1,5 @@
 ---
-import { formatAgo } from "~/lib/format";
+import { formatAgo, isImageIcon } from "~/lib/format";
 interface Props {
   slug: string;
   title: string;
@@ -30,7 +30,7 @@ const palette = palettes[colorIdx];
     <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/10"></div>
     <div class="absolute right-8 top-10 w-12 h-12 rounded-full bg-white/10"></div>
     <div class="absolute left-5 bottom-3 w-12 h-12 rounded-[14px] bg-white/95 dark:bg-white/90 backdrop-blur flex items-center justify-center text-2xl shadow-lg">
-      {icon}
+      {isImageIcon(icon) ? <img src={icon} alt={title} class="w-8 h-8 object-contain" /> : icon}
     </div>
   </div>
   <div class="p-[22px] pt-[18px] flex-1 flex flex-col">

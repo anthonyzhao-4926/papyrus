@@ -24,11 +24,25 @@ export function buildTree(articles: Article[]): TreeNode[] {
   return sortTree(root);
 }
 
+const README_RE = /^readme$/i;
+
+// 排序优先级：README 置顶 > 目录 > 普通文件
+function rank(node: TreeNode): number {
+  if (node.type === "file" && README_RE.test(node.name)) return 0;
+  return node.type === "dir" ? 1 : 2;
+}
+
 function sortTree(nodes: TreeNode[]): TreeNode[] {
   nodes.sort((a, b) => {
-    if (a.type !== b.type) return a.type === "dir" ? -1 : 1;
+    const ra = rank(a), rb = rank(b);
+    if (ra !== rb) return ra - rb;
     return a.name.localeCompare(b.name);
   });
   for (const n of nodes) if (n.children) sortTree(n.children);
   return nodes;
+}
+
+// 取 repo 根目录的 README（用作默认页内容）
+export function findReadme(articles: Article[]): Article | undefined {
+  return articles.find(a => a.path.length === 1 && README_RE.test(a.path[0]));
 }

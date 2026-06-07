@@ -19,7 +19,7 @@
 }
 .prose pre {
   background: var(--c-code-bg);
-  color: #e2e8f0;
+  color: var(--c-text);
   padding: 16px 18px;
   border-radius: 8px;
   font-size: 13px;

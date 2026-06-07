@@ -21,7 +21,7 @@ const { title, tree, repoSlug, currentPath, toc } = Astro.props;
     <main class="max-w-prose">
       <slot />
     </main>
-    <aside class="border-l border-border pl-4">
+    <aside class="border-l border-border pl-4 self-start sticky top-16 max-h-[calc(100vh-5rem)] overflow-y-auto">
       <ArticleTOC items={toc} />
     </aside>
   </div>

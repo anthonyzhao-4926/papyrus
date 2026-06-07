@@ -27,12 +27,21 @@ describe("buildTree", () => {
 
   it("目录与文件混合，目录排前面", () => {
     const t = buildTree([
-      mk(["readme"]),
+      mk(["intro"]),
       mk(["frontend", "react"]),
       mk(["backend", "db"]),
     ]);
-    expect(t.map(n => n.name)).toEqual(["backend", "frontend", "readme"]);
+    expect(t.map(n => n.name)).toEqual(["backend", "frontend", "intro"]);
     expect(t.map(n => n.type)).toEqual(["dir", "dir", "file"]);
+  });
+
+  it("README 置顶，排在目录与其他文件之前", () => {
+    const t = buildTree([
+      mk(["intro"]),
+      mk(["frontend", "react"]),
+      mk(["README"]),
+    ]);
+    expect(t.map(n => n.name)).toEqual(["README", "frontend", "intro"]);
   });
 
   it("同级文件按名字排序", () => {

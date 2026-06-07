@@ -18,18 +18,33 @@
     "note": {
       "title": "笔记",
       "icon": "📝"
+    },
+    "ai": {
+      "title": "AI",
+      "icon": "🤖"
     }
   },
   "repos": [
     {
-      "slug": "xin-skills",
-      "title": "Agent Skills",
-      "description": "根据个人需求编写的Agent Skills",
-      "icon": "📘",
-      "source": "github.com/anthonyzhao-4926/xin-skills",
+      "slug": "go-package",
+      "title": "Go 工具包",
+      "description": "收集golang工具包，提供快捷使用方式检索",
+      "icon": "/gopher.svg",
+      "source": "github.com/anthonyzhao-4926/go-package",
       "branch": "main",
       "tags": [
         "tool"
+      ]
+    },
+    {
+      "slug": "claude-code",
+      "title": "Claude Code",
+      "description": "claude code官方文档过于过于零散，根据个人学习经验，系统整理一下",
+      "icon": "/claude.svg",
+      "source": "github.com/anthonyzhao-4926/claude-code",
+      "branch": "main",
+      "tags": [
+        "tutorial"
       ]
     }
   ]
