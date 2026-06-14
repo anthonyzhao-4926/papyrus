@@ -86,4 +86,21 @@ describe("renderMarkdown", () => {
     expect(html).toContain('href="/already/abs.md"');
     expect(html).toContain('href="something.txt"');
   });
+
+  it("地址含空格的 .md 链接也被解析并重写（自动补尖括号）", async () => {
+    const md = [
+      "[宏观认识Claude code.md](宏观认识Claude code.md)",
+      "[带空格带锚点](my notes.md#sec)",
+    ].join("\n\n");
+    const { html } = await renderMarkdown(md, {
+      repoSlug: "claude-code",
+      currentPath: ["README"],
+    });
+    // 中文与空格都被 remark 编码（%20 即空格），关键是确实生成了 <a>，
+    // 而非因空格截断退化成纯文本。
+    const enc = encodeURIComponent("宏观认识Claude code");
+    expect(html).toContain(`href="/claude-code/${enc}"`);
+    expect(html).toContain('href="/claude-code/my%20notes#sec"');
+    expect(html).not.toContain("](");
+  });
 });

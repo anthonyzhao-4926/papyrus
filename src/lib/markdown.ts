@@ -103,6 +103,18 @@ function withCopyButton() {
   };
 }
 
+// CommonMark 规定：内联链接地址若含空格，必须用尖括号包裹 `[t](<a b.md>)`，
+// 否则空格会截断 URL，整条链接语法失效、退化成纯文本。用户笔记里常写
+// `[宏观认识Claude code.md](宏观认识Claude code.md)` 这种带空格的相对链接，
+// 这里在解析前把这类未包裹的 .md 地址自动补上尖括号。
+function wrapSpacedMdLinks(md: string): string {
+  // 匹配 `](dest)`，dest 不含 ) < >，以 .md（可带 #锚点）结尾。
+  return md.replace(
+    /\]\(([^)<>]*?\.md(?:#[^)]*?)?)\)/g,
+    (full, dest) => (/\s/.test(dest) ? `](<${dest}>)` : full),
+  );
+}
+
 function resolveRelative(base: string[], rel: string): string[] {
   const segs = [...base];
   for (const part of rel.split("/")) {
@@ -122,10 +134,10 @@ function rewriteMdLinks(opts: { repoSlug: string; currentPath: string[] }) {
       const href = node.properties?.href;
       if (typeof href !== "string") return;
       if (/^([a-z][a-z0-9+.-]*:|\/\/|#|\/)/i.test(href)) return;
-      const m = href.match(/^([^?#]+?)\.md(#[^?]*)?$/i);
+      const m = href.match(/^(.+?)\.md(#[^?]*)?$/i);
       if (!m) return;
       const baseDir = opts.currentPath.slice(0, -1);
-      const target = resolveRelative(baseDir, m[1]);
+      const target = resolveRelative(baseDir, m[1].trim());
       node.properties.href = `/${opts.repoSlug}/${target.join("/")}${m[2] ?? ""}`;
     });
   };
@@ -140,6 +152,7 @@ export async function renderMarkdown(
   md: string,
   opts?: RenderOptions,
 ): Promise<{ html: string; toc: TocItem[] }> {
+  md = wrapSpacedMdLinks(md);
   let pipeline = unified()
     .use(remarkParse)
     .use(remarkGfm)
