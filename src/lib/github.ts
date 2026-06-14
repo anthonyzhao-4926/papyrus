@@ -1,13 +1,15 @@
 import { Octokit } from "@octokit/rest";
 
-const token = process.env.GITHUB_TOKEN;
-export const octokit = new Octokit({ auth: token || undefined });
+export function getOctokit() {
+  const token = process.env.GITHUB_TOKEN;
+  return new Octokit({ auth: token || undefined });
+}
 
 interface RepoRef { owner: string; repo: string; branch: string; }
 interface FileRef { owner: string; repo: string; path: string; }
 
 export async function listMarkdownFiles(ref: RepoRef): Promise<string[]> {
-  const res = await octokit.git.getTree({
+  const res = await getOctokit().git.getTree({
     owner: ref.owner,
     repo: ref.repo,
     tree_sha: ref.branch,
@@ -19,7 +21,7 @@ export async function listMarkdownFiles(ref: RepoRef): Promise<string[]> {
 }
 
 export async function fetchFileContent(ref: FileRef): Promise<string> {
-  const res = await octokit.repos.getContent({
+  const res = await getOctokit().repos.getContent({
     owner: ref.owner, repo: ref.repo, path: ref.path,
   });
   const data = res.data as { content?: string; encoding?: string };
@@ -28,7 +30,7 @@ export async function fetchFileContent(ref: FileRef): Promise<string> {
 }
 
 export async function fetchLastCommitDate(ref: FileRef): Promise<string> {
-  const res = await octokit.repos.listCommits({
+  const res = await getOctokit().repos.listCommits({
     owner: ref.owner, repo: ref.repo, path: ref.path, per_page: 1,
   });
   const c = res.data[0];

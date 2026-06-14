@@ -1,7 +1,10 @@
 #!/usr/bin/env tsx
+import { config } from "dotenv";
 import { mkdir, writeFile } from "node:fs/promises";
 import { loadConfig } from "../src/lib/config.js";
 import { loadAllArticles } from "../src/lib/content-loader.js";
+
+config();
 
 async function main() {
   console.log("[prebuild] 读取 papyrus.config.json...");
