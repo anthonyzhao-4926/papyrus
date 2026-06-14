@@ -8,6 +8,10 @@
 .prose h3 { font-size: 17px; line-height: 1.4; font-weight: 600; margin: 22px 0 6px; }
 .prose p { margin: 0 0 12px; }
 .prose ul, .prose ol { padding-left: 22px; margin: 8px 0; }
+.prose ul { list-style: disc; }
+.prose ol { list-style: decimal; }
+.prose ul ul { list-style: circle; }
+.prose ul ul ul { list-style: square; }
 .prose li { margin-bottom: 4px; }
 .prose code:not(pre code) {
   background: var(--c-border);

@@ -1,6 +1,7 @@
 ---
 import ThemeToggle from "~/components/ThemeToggle.astro";
 import { loadConfig } from "~/lib/config";
+import { isImageIcon } from "~/lib/format";
 
 const config = await loadConfig();
 const tagEntries = Object.entries(config.tags ?? {});  // [slug, { title, icon }][]
@@ -30,7 +31,9 @@ const currentTag = pathname.startsWith("/tag/") ? pathname.split("/")[2] : null;
           currentTag === slug ? "text-text font-medium bg-bg-elev" : "text-text-mute hover:text-text hover:bg-bg-elev"
         }`}
       >
-        {tag.icon && <span class="mr-1">{tag.icon}</span>}{tag.title}
+        {tag.icon && (isImageIcon(tag.icon)
+          ? <img src={tag.icon} alt="" class="inline-block w-4 h-4 mr-1 -mt-0.5 object-contain" />
+          : <span class="mr-1">{tag.icon}</span>)}{tag.title}
       </a>
     ))}
   </nav>

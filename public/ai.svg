@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="AI">
+  <defs>
+    <linearGradient id="ai-grad" x1="10" y1="6" x2="90" y2="94" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3B82F6"/>
+      <stop offset="0.55" stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#A855F7"/>
+    </linearGradient>
+  </defs>
+  <!-- 主四角星 sparkle：每条边向中心内凹 -->
+  <path fill="url(#ai-grad)"
+        d="M44 14 Q44 50 80 50 Q44 50 44 86 Q44 50 8 50 Q44 50 44 14 Z"/>
+  <!-- 右上小星，点缀 -->
+  <path fill="url(#ai-grad)"
+        d="M80 8 Q80 25 96 25 Q80 25 80 42 Q80 25 64 25 Q80 25 80 8 Z"/>
+</svg>

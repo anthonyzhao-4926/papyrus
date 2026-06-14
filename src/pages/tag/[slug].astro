@@ -43,7 +43,9 @@ const description = (tag.description ?? `{count} 个笔记本里关于「{title}
           标签 · TAG
         </div>
         <h1 class="font-extrabold tracking-[-0.025em] leading-[1.05] text-[48px] mb-3 text-text">
-          {tag.icon && <span class="mr-2">{tag.icon}</span>}{tag.title}
+          {tag.icon && (isImageIcon(tag.icon)
+            ? <img src={tag.icon} alt="" class="inline-block w-10 h-10 mr-3 -mt-1 object-contain align-middle" />
+            : <span class="mr-2">{tag.icon}</span>)}{tag.title}
         </h1>
         <p class="text-[14px] text-text-mute">{description}</p>
       </div>
