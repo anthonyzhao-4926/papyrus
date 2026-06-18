@@ -11,7 +11,7 @@ const pathname = Astro.url.pathname;
 const isHome = pathname === "/" || pathname === "";
 const currentTag = pathname.startsWith("/tag/") ? pathname.split("/")[2] : null;
 ---
-<header class="flex items-center px-8 py-4 border-b border-border gap-6">
+<header class="sticky top-0 z-40 flex items-center px-8 py-4 border-b border-border gap-6 bg-bg">
   <a href="/" class="font-bold text-base tracking-tight shrink-0">
     {config.site.name}<span class="text-accent">.</span>
   </a>

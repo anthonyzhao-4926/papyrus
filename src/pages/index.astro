@@ -3,7 +3,6 @@ import HomeLayout from "~/layouts/HomeLayout.astro";
 import HomeHero from "~/components/HomeHero.astro";
 import ActivityTimeline from "~/components/ActivityTimeline.astro";
 import WritingHeatmap from "~/components/WritingHeatmap.astro";
-import { formatAgo } from "~/lib/format";
 import { readFile } from "node:fs/promises";
 import type { PapyrusConfig, Article } from "~/lib/types";
 
@@ -18,7 +17,6 @@ const sorted = [...articles].sort((a, b) => (a.date < b.date ? 1 : -1));
 const totalArticles = articles.length;
 const totalRepos = config.repos.length;
 const latestDate = sorted[0]?.date ?? null;
-const latestAgo = latestDate ? formatAgo(latestDate) : null;
 
 const repoMap: Record<string, typeof config.repos[number]> = {};
 for (const r of config.repos) repoMap[r.slug] = r;
@@ -30,7 +28,7 @@ const recent = sorted.slice(0, 10);
     site={config.site}
     totalArticles={totalArticles}
     totalRepos={totalRepos}
-    latestAgo={latestAgo}
+    latestDate={latestDate}
   />
 
   {(recent.length > 0 || articles.length > 0) && (

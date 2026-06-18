@@ -1,5 +1,6 @@
 ---
-import { formatAgo, isImageIcon } from "~/lib/format";
+import RelativeDate from "~/components/RelativeDate.astro";
+import { isImageIcon } from "~/lib/format";
 interface Props {
   slug: string;
   title: string;
@@ -38,7 +39,7 @@ const palette = palettes[colorIdx];
     <p class="text-[13px] text-text-mute leading-[1.6] mb-[16px] flex-1">{description}</p>
     <div class="flex items-center justify-between text-[12px] text-text-faint">
       <span class="font-medium text-text-mute">{articleCount} 篇</span>
-      <span>{formatAgo(latestDate)}</span>
+      <RelativeDate date={latestDate} />
     </div>
   </div>
 </a>

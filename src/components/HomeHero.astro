@@ -1,4 +1,5 @@
 ---
+import RelativeDate from "~/components/RelativeDate.astro";
 import { getIsoWeek } from "~/lib/format";
 import type { SiteConfig } from "~/lib/types";
 
@@ -6,9 +7,9 @@ interface Props {
   site: SiteConfig;
   totalArticles: number;
   totalRepos: number;
-  latestAgo: string | null;
+  latestDate: string | null;
 }
-const { site, totalArticles, totalRepos, latestAgo } = Astro.props;
+const { site, totalArticles, totalRepos, latestDate } = Astro.props;
 const now = new Date();
 const eyebrow = site.heroEyebrow ?? `${now.getUTCFullYear()} · 第 ${getIsoWeek(now)} 周`;
 const titleLine1 = site.heroTitle ?? "把零散的想法";
@@ -41,10 +42,10 @@ const titleLine2 = site.heroHighlight ?? "沉淀成可以回看的东西";
       <span class="text-text-faint">笔记本</span>
       <span class="font-semibold">{totalRepos} 个</span>
     </div>
-    {latestAgo && (
+    {latestDate && (
       <div class="flex justify-between text-[13px]">
         <span class="text-text-faint">最近更新</span>
-        <span class="font-semibold">{latestAgo}</span>
+        <RelativeDate date={latestDate} class="font-semibold" />
       </div>
     )}
   </div>

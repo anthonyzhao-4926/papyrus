@@ -1,0 +1,18 @@
+---
+import { formatAgo } from "~/lib/format";
+
+interface Props {
+  date: string;
+  class?: string;
+}
+const { date, class: className } = Astro.props;
+---
+<span class={className} data-relative-date={date}>{formatAgo(date)}</span>
+<script>
+  import { formatAgo } from "~/lib/format";
+
+  for (const el of document.querySelectorAll("[data-relative-date]")) {
+    const iso = el.getAttribute("data-relative-date");
+    if (iso) el.textContent = formatAgo(iso);
+  }
+</script>

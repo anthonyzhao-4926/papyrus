@@ -1,5 +1,9 @@
+function utcDayIndex(d: Date): number {
+  return Math.floor(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) / 86400000);
+}
+
 export function formatAgo(iso: string, now: Date = new Date()): string {
-  const days = Math.floor((now.getTime() - new Date(iso).getTime()) / 86400000);
+  const days = utcDayIndex(now) - utcDayIndex(new Date(iso));
   if (days <= 0) return "今天更新";
   if (days < 7) return `${days} 天前更新`;
   if (days < 30) return `${Math.floor(days / 7)} 周前更新`;

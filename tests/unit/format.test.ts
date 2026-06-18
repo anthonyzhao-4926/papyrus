@@ -18,6 +18,10 @@ describe("formatAgo", () => {
     expect(formatAgo("2026-06-06T03:00:00Z")).toBe("今天更新");
   });
 
+  it("跨日但不足 24 小时按日历天算", () => {
+    expect(formatAgo("2026-06-05T23:00:00Z")).toBe("1 天前更新");
+  });
+
   it("3 天前返回 '3 天前更新'", () => {
     expect(formatAgo("2026-06-03T12:00:00Z")).toBe("3 天前更新");
   });
