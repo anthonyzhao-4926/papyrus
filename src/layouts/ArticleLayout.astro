@@ -2,6 +2,7 @@
 import BaseLayout from "./BaseLayout.astro";
 import RepoTree from "~/components/RepoTree.astro";
 import ArticleTOC from "~/components/ArticleTOC.astro";
+import ArticleWidthToggle from "~/components/ArticleWidthToggle.astro";
 import type { TreeNode, TocItem } from "~/lib/types";
 
 interface Props {
@@ -18,13 +19,14 @@ const { title, tree, repoSlug, currentPath, toc } = Astro.props;
     <aside class="border-r border-border pr-4 self-start sticky top-16 max-h-[calc(100vh-5rem)] overflow-y-auto" data-repo-tree>
       <RepoTree nodes={tree} repoSlug={repoSlug} currentPath={currentPath} />
     </aside>
-    <main class="max-w-prose">
+    <main class="article-main max-w-prose min-w-0">
       <slot />
     </main>
     <aside class="border-l border-border pl-4 self-start sticky top-16 max-h-[calc(100vh-5rem)] overflow-y-auto">
       <ArticleTOC items={toc} />
     </aside>
   </div>
+  <ArticleWidthToggle />
   <script>
     // 长目录时把当前文章自动滚到侧栏视口中央
     requestAnimationFrame(() => {

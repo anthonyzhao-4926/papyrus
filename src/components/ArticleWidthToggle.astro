@@ -1,0 +1,19 @@
+---
+---
+<button
+  id="article-width-toggle"
+  type="button"
+  class="fixed bottom-6 right-6 z-30 w-10 h-10 border border-border rounded-full flex items-center justify-center text-text-mute bg-bg shadow-md hover:bg-bg-elev hover:text-text transition-colors"
+  aria-label="切换阅读宽度"
+  title="切换阅读宽度"
+>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 article-width-icon-default"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M3 12h12"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 article-width-icon-full hidden"><path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4M14 17l-5-5 5-5M21 12H9"/></svg>
+</button>
+<script>
+  const btn = document.getElementById("article-width-toggle")!;
+  btn.addEventListener("click", () => {
+    const isFull = document.documentElement.classList.toggle("article-width-full");
+    localStorage.setItem("article-width", isFull ? "full" : "default");
+  });
+</script>

@@ -25,6 +25,9 @@ const { title, description = "" } = Astro.props;
         const sys = matchMedia("(prefers-color-scheme: dark)").matches;
         const dark = saved === "dark" || (!saved && sys);
         if (dark) document.documentElement.classList.add("dark");
+        if (localStorage.getItem("article-width") === "full") {
+          document.documentElement.classList.add("article-width-full");
+        }
       })();
     </script>
   </head>

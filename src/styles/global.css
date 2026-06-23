@@ -38,3 +38,11 @@ html:not(.dark) .shiki span { color: var(--shiki-light) !important; }
 html.dark .shiki span { color: var(--shiki-dark) !important; }
 html:not(.dark) .shiki { background-color: var(--c-code-bg) !important; }
 html.dark .shiki { background-color: var(--shiki-dark-bg, var(--c-code-bg)) !important; }
+
+/* 文章页阅读宽度 */
+html.article-width-full .article-main {
+  max-width: none;
+}
+html:not(.article-width-full) .article-width-icon-full { display: none; }
+html.article-width-full .article-width-icon-default { display: none; }
+html.article-width-full .article-width-icon-full { display: block; }
