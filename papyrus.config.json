@@ -44,7 +44,20 @@
       "source": "github.com/anthonyzhao-4926/claude-code",
       "branch": "main",
       "tags": [
-        "tutorial"
+        "tutorial",
+        "ai"
+      ]
+    },
+    {
+      "slug": "go-mcp",
+      "title": "Go MCP",
+      "description": "以小案例为驱动，介绍Go MCP 教程",
+      "icon": "/MCP7.svg",
+      "source": "github.com/anthonyzhao-4926/go-mcp",
+      "branch": "main",
+      "tags": [
+        "tutorial",
+        "ai"
       ]
     }
   ]
